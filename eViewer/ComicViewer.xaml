@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:eViewer" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp"
+        xmlns:local="clr-namespace:eViewer" KeyDown="Window_KeyDown" KeyUp="Window_KeyUp" Unloaded="Window_Unloaded"
         mc:Ignorable="d" RenderOptions.BitmapScalingMode="Fant"
         Title="ComicViewer" Height="450" Width="800">
     <d:Control.DataContext>
@@ -33,11 +33,13 @@
                                     </Image.Effect>
                                 </Image>
                             </Button>
+                            <ProgressBar Height="10" Width="100" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+        <ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding IsLoading}" Value="{Binding Progress}" Maximum="100"/>
         <Grid Visibility="{Binding OverlayOpened}">
             <Grid.Resources>
                 <Style TargetType="Button">

@@ -63,8 +63,7 @@ namespace eViewer
         {
             if (url is string s)
             {
-                ComicViewer cv = new();
-                cv.DataContext = new ViewerViewModel(eh, s);
+                ComicViewer cv = new(new ViewerViewModel(eh, s));
                 cv.Show();
             }
         });

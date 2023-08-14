@@ -4,6 +4,15 @@
              xmlns:local="clr-namespace:eViewer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="ProgressBar" TargetType="ProgressBar">
+            <Setter Property="Maximum" Value="100"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Value,RelativeSource={RelativeSource Self}}" Value="100">
+                    <DataTrigger.Setters>
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

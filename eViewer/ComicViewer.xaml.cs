@@ -19,9 +19,12 @@ namespace eViewer
     /// </summary>
     public partial class ComicViewer : Window
     {
-        public ComicViewer()
+        private ViewerViewModel vvm;
+        internal ComicViewer(ViewerViewModel vvm)
         {
             InitializeComponent();
+            this.vvm = vvm;
+            DataContext = vvm;
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -45,6 +48,11 @@ namespace eViewer
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
+        }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            vvm.Cancel();
         }
     }
 }
