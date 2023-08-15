@@ -30,17 +30,15 @@ namespace eViewer
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F11) {
-                if (Topmost)
+                if (WindowState == WindowState.Maximized)
                 {
                     WindowStyle = WindowStyle.SingleBorderWindow;
                     WindowState = WindowState.Normal;
-                    Topmost = false;
                 }
                 else
                 {
                     WindowStyle = WindowStyle.None;
                     WindowState = WindowState.Maximized;
-                    Topmost = true;
                     Activate();
                 }
             }

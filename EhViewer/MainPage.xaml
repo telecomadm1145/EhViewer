@@ -5,10 +5,90 @@
     xmlns:local="using:EhViewer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+    <Page.DataContext>
+        <local:MainViewModel/>
+    </Page.DataContext>
     <Grid>
-
+        <ScrollViewer>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <Grid MaxWidth="800" Margin="10" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Name="QueryContent" Margin="5"/>
+                    <Button HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Command="{Binding Search}" 
+                    CommandParameter="{Binding Text,ElementName=QueryContent}" Grid.Column="1" ToolTipService.ToolTip="Search">
+                        <SymbolIcon Symbol="Find"/>
+                    </Button>
+                    <ProgressRing IsActive="{Binding Loading}" Grid.Column="2"/>
+                </Grid>
+                <Border Grid.Row="2" Background="#207f7f7f" CornerRadius="5" Margin="5"/>
+                <ItemsControl Name="Items" ItemsSource="{Binding SearchResult.Entries}" Grid.Row="2" Margin="5">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Background="#01000000" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
+                                Command="{Binding Path=DataContext.Open,ElementName=Items}"
+                                CommandParameter="{Binding Url}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <!--<ColumnDefinition Width="200"/>-->
+                                    </Grid.ColumnDefinitions>
+                                    <Border Background="#9E2720" BorderBrush="#9E2720" BorderThickness="1" CornerRadius="2" Margin="3" ToolTipService.ToolTip="{Binding Type}">
+                                        <TextBlock Text="{Binding Type}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="15"/>
+                                    </Border>
+                                    <Border Grid.Column="1" Margin="3">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition/>
+                                                <RowDefinition/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding Name}" ToolTipService.ToolTip="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" FontSize="18"/>
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden">
+                                                <ItemsControl ItemsSource="{Binding Tags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button Padding="2" Margin="0,0,5,0" ToolTipService.ToolTip="{Binding}">
+                                                                <TextBlock Text="{Binding}" FontSize="15" Foreground="White"/>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Grid Grid.Row="3">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="开始页" Command="{Binding To}" CommandParameter="{Binding SearchResult.StartUrl}" Margin="5"/>
+                        <Button Content="上一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.PrevUrl}" Margin="5"/>
+                        <TextBlock Margin="5"/>
+                        <Button Content="下一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.NextUrl}" Margin="5"/>
+                        <Button Content="结束页" Command="{Binding To}" CommandParameter="{Binding SearchResult.LastUrl}" Margin="5"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -28,7 +28,6 @@
                     CommandParameter="{Binding Text,ElementName=QueryContent}" Grid.Column="1"/>
                 </Grid>
                 <StackPanel Grid.Row="1">
-                    <ProgressBar IsIndeterminate="{Binding Loading}" Width="100" Height="15" Foreground="DeepSkyBlue"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button Content="Start" Command="{Binding To}" CommandParameter="{Binding SearchResult.StartUrl}" Margin="5"/>
                         <Button Content="Prev" Command="{Binding To}" CommandParameter="{Binding SearchResult.PrevUrl}" Margin="5"/>

@@ -13,5 +13,13 @@ namespace eViewer
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            Dispatcher.UnhandledException += (_, e) => {
+                MessageBox.Show(e.Exception.ToString());
+                e.Handled = true;
+            };
+            base.OnStartup(e);
+        }
     }
 }
