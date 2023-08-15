@@ -27,7 +27,7 @@
                                     <Grid>
                                         <Image Source="{Binding Preview}">
                                         </Image>
-                                        <muxc:ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100"/>
+                                        <muxc:ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100" Visibility="{Binding DataContext.IsLoadingVisible,ElementName=Items}"/>
                                     </Grid>
                                 </Button>
                             </Grid>
@@ -40,7 +40,7 @@
                 </Button>
             </Grid>
         </ScrollViewer>
-        <muxc:ProgressRing IsIndeterminate="False" Value="{Binding Progress}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+        <muxc:ProgressRing IsIndeterminate="{Binding IsLoading}" Value="{Binding Progress}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding IsLoadingVisible}"/>
         <Grid Visibility="{Binding OverlayOpened}">
             <Grid.Resources>
                 <Style TargetType="Button">

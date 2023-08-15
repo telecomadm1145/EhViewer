@@ -123,7 +123,7 @@
     <Compile Include="ComicViewer.xaml.cs">
       <DependentUpon>ComicViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ehApi.cs" />
+    <Compile Include="EhApi.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace EhViewer
 {
-    public class ehApi
+    public class EhApi
     {
         public Uri Endpoint { get; set; } = new Uri("https://e-hentai.org");
         private HttpClient client = new();

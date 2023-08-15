@@ -24,9 +24,9 @@ namespace EhViewer
     [AddINotifyPropertyChangedInterface]
     internal class ViewerViewModel
     {
-        ehApi api;
+        EhApi api;
         [AddINotifyPropertyChangedInterface]
-        public class vImage
+        public class ViewerImage
         {
             public string PageUrl { get; set; }
             public string Title { get; set; }
@@ -36,11 +36,12 @@ namespace EhViewer
             public ImageSource? Source { get; set; }
             public double Progress { get; set; }
         }
-        public ObservableCollection<vImage> GalleryImages { get; private set; } = new();
+        public ObservableCollection<ViewerImage> GalleryImages { get; private set; } = new();
 
         private CancellationTokenSource _cancellationTokenSource = new();
         public bool IsLoading { get; set; } = true;
         public Visibility ShowSaveButton { get; set; } = Visibility.Collapsed;
+        public Visibility IsLoadingVisible { get; set; } = Visibility.Visible;
         public ICommand Save => new RelayCommand(async (_) =>
         {
             if (ShowSaveButton == Visibility.Collapsed)
@@ -57,7 +58,7 @@ namespace EhViewer
                 var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
                 await stream.WriteAsync(item.FullImgData.AsBuffer());
                 stream.Dispose();
-                i++;
+                ++i;
             }
             ContentDialog messageDialog = new ContentDialog
             {
@@ -77,7 +78,7 @@ namespace EhViewer
         {
             // 留给previewer
         }
-        public ViewerViewModel(ehApi api, string url)
+        public ViewerViewModel(EhApi api, string url)
         {
             this.api = api;
             _ = Load(url);
@@ -92,7 +93,7 @@ namespace EhViewer
             {
                 await foreach (var img in api.GetImages(url))
                 {
-                    vImage vi = new()
+                    ViewerImage vi = new()
                     {
                         PageUrl = img.PageUrl,
                         Title = img.Title,
@@ -117,6 +118,7 @@ namespace EhViewer
                 });
                 await tcs.Task;
                 ShowSaveButton = Visibility.Visible;
+                IsLoadingVisible = Visibility.Collapsed;
             }
             catch
             {
@@ -148,7 +150,7 @@ namespace EhViewer
                 Value--;
             }
         }
-        private async Task Download(Limit l, vImage img, CancellationToken cancel)
+        private async Task Download(Limit l, ViewerImage img, CancellationToken cancel)
         {
             int id = DateTime.Now.GetHashCode() & 0xFFF;
             Debug.WriteLine($"[{id}]Trying to download {img.PageUrl}...(In Queue)");
@@ -183,13 +185,12 @@ namespace EhViewer
             }
         }
 
-        private async Task DownloadImageAsync(string imageUrl, CancellationToken cancel, vImage img)
+        private async Task DownloadImageAsync(string imageUrl, CancellationToken cancel, ViewerImage img)
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead);
 
             var image = new BitmapImage();
-            image.DecodePixelWidth = 720;
             var pv = new BitmapImage();
             pv.DecodePixelWidth = 300;
             var totalBytes = response.Content.Headers.ContentLength ?? 1;
@@ -207,7 +208,7 @@ namespace EhViewer
                         bytesRead += bytesReadThisTime;
                         await stream.WriteAsync(buffer, 0, bytesReadThisTime);
                         cancel.ThrowIfCancellationRequested();
-                        img.Progress = (double)bytesRead / totalBytes;
+                        img.Progress = ((double)bytesRead / totalBytes) * 100;
                     }
                 }
                 img.FullImgData = stream.ToArray();
@@ -219,7 +220,7 @@ namespace EhViewer
             img.Source = image;
             img.Preview = pv;
         }
-        public vImage? Current { get; set; }
+        public ViewerImage? Current { get; set; }
         public int Index { get; set; } = 0;
         public Visibility OverlayOpened { get; set; } = Visibility.Collapsed;
         public ICommand Next => new RelayCommand(async (object? arg) =>

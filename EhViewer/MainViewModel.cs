@@ -17,10 +17,10 @@ namespace EhViewer
     [AddINotifyPropertyChangedInterface]
     public class MainViewModel
     {
-        private ehApi eh = new();
+        private EhApi eh = new();
         public bool Loading { get; set; } = false;
         public bool Error { get; set; } = false;
-        public ehApi.SearchResult SearchResult { get; set; } = default;
+        public EhApi.SearchResult SearchResult { get; set; } = default;
         public ICommand Search => new RelayCommand(async (object? url) =>
         {
             if (url is string s && !Loading)
