@@ -5,14 +5,17 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -28,6 +31,8 @@ namespace EhViewer
             public string PageUrl { get; set; }
             public string Title { get; set; }
             public bool Loading { get; set; } = true;
+            public byte[] FullImgData { get; set; }
+            public ImageSource? Preview { get; set; }
             public ImageSource? Source { get; set; }
             public double Progress { get; set; }
         }
@@ -35,6 +40,34 @@ namespace EhViewer
 
         private CancellationTokenSource _cancellationTokenSource = new();
         public bool IsLoading { get; set; } = true;
+        public Visibility ShowSaveButton { get; set; } = Visibility.Collapsed;
+        public ICommand Save => new RelayCommand(async (_) =>
+        {
+            if (ShowSaveButton == Visibility.Collapsed)
+                return;
+            FolderPicker picker = new();
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            var folder = await picker.PickSingleFolderAsync();
+            if (folder == null)
+                return;
+            int i = 0;
+            foreach (var item in GalleryImages)
+            {
+                var file = await folder.CreateFileAsync($"{i}.jpg");
+                var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                await stream.WriteAsync(item.FullImgData.AsBuffer());
+                stream.Dispose();
+                i++;
+            }
+            ContentDialog messageDialog = new ContentDialog
+            {
+                Title = "EhViewer",
+                Content = $"保存了{i}图片。",
+                CloseButtonText = "关闭"
+            };
+
+            await messageDialog.ShowAsync();
+        });
         private int RawProgress = 0;
         public double Progress { get; set; } = 0;
 
@@ -55,27 +88,40 @@ namespace EhViewer
         }
         public async Task Load(string url)
         {
-            await foreach (var img in api.GetImages(url))
+            try
             {
-                vImage vi = new()
+                await foreach (var img in api.GetImages(url))
                 {
-                    PageUrl = img.PageUrl,
-                    Title = img.Title,
-                    Source = img.Preview
-                };
-                GalleryImages.Add(vi);
+                    vImage vi = new()
+                    {
+                        PageUrl = img.PageUrl,
+                        Title = img.Title,
+                        Preview = img.Preview,
+                        Source = img.Preview,
+                    };
+                    GalleryImages.Add(vi);
+                }
+                IsLoading = false;
+                List<Task> downloadTasks = new();
+                Limit limit = new(5);
+                foreach (var img in GalleryImages) // this starts the download progress
+                {
+                    downloadTasks.Add(Download(limit, img, _cancellationTokenSource.Token));
+                    await Task.Delay(1000);
+                }
+                TaskCompletionSource<bool> tcs = new();
+                _ = Task.WhenAll(downloadTasks).ContinueWith((t) =>
+                {
+                    tcs.SetResult(true);
+                    Debug.WriteLine("Download finished.");
+                });
+                await tcs.Task;
+                ShowSaveButton = Visibility.Visible;
             }
-            IsLoading = false;
-            List<Task> downloadTasks = new();
-            Limit limit = new(5);
-            foreach (var img in GalleryImages) // this starts the download progress
+            catch
             {
-                downloadTasks.Add(Download(limit, img, _cancellationTokenSource.Token));
-                await Task.Delay(1000);
+                Debug.Assert(false);
             }
-            _ = Task.WhenAll(downloadTasks).ContinueWith((t) => {
-                Debug.WriteLine("Download finished.");
-            });
         }
         private class Limit
         {
@@ -114,32 +160,19 @@ namespace EhViewer
                 var bigurl = await api.GatherImageLink(img.PageUrl);
                 Debug.WriteLine($"[{id}]Downloading {bigurl}...");
             redo:
-                var bi = new BitmapImage();
-                bi.BeginInit();
-                bi.UriSource = new Uri(bigurl);
-                bi.CacheOption = BitmapCacheOption.OnLoad;
-                bi.EndInit();
-                if (bi.IsDownloading)
+                try
                 {
-                    TaskCompletionSource<bool>? tcs = new();
-                    bi.DownloadProgress += (_, e) => { img.Progress = e.Progress; };
-                    bi.DownloadCompleted += (_, _) => { tcs?.SetResult(true); };
-                    bi.DownloadFailed += (_, _) => { tcs?.SetResult(false); };
-                    cancel.Register(() => { tcs?.SetResult(true); });
-                    var res = await tcs.Task;
-                    tcs = null;
+                    await DownloadImageAsync(bigurl, cancel, img);
+                }
+                catch
+                {
                     cancel.ThrowIfCancellationRequested();
-                    if (!res)
-                    {
-                        Debug.WriteLine($"[{id}]Download {bigurl} failed,retrying...");
-                        await Task.Delay(3000, cancel);
-                        goto redo;
-                    }
+                    Debug.WriteLine($"[{id}]Failed...retrying...");
+                    await Task.Delay(9000);
+                    goto redo;
                 }
                 Debug.WriteLine($"[{id}]Downloaded {bigurl}!");
-                //bi.Freeze();
                 img.Progress = 100;
-                img.Source = bi;
                 RawProgress++;
                 Progress = (double)RawProgress / GalleryImages.Count * 100;
             }
@@ -148,6 +181,43 @@ namespace EhViewer
                 Debug.WriteLine($"[{id}]Exiting...");
                 l.Exit();
             }
+        }
+
+        private async Task DownloadImageAsync(string imageUrl, CancellationToken cancel, vImage img)
+        {
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead);
+
+            var image = new BitmapImage();
+            image.DecodePixelWidth = 720;
+            var pv = new BitmapImage();
+            pv.DecodePixelWidth = 300;
+            var totalBytes = response.Content.Headers.ContentLength ?? 1;
+            var bytesRead = 0L;
+
+            using (var stream = new MemoryStream())
+            {
+                using (var inputStream = await response.Content.ReadAsStreamAsync())
+                {
+                    var buffer = new byte[8192];
+                    var bytesReadThisTime = 0;
+
+                    while ((bytesReadThisTime = await inputStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        bytesRead += bytesReadThisTime;
+                        await stream.WriteAsync(buffer, 0, bytesReadThisTime);
+                        cancel.ThrowIfCancellationRequested();
+                        img.Progress = (double)bytesRead / totalBytes;
+                    }
+                }
+                img.FullImgData = stream.ToArray();
+                stream.Seek(0, SeekOrigin.Begin);
+                await image.SetSourceAsync(stream.AsRandomAccessStream());
+                stream.Seek(0, SeekOrigin.Begin);
+                await pv.SetSourceAsync(stream.AsRandomAccessStream());
+            }
+            img.Source = image;
+            img.Preview = pv;
         }
         public vImage? Current { get; set; }
         public int Index { get; set; } = 0;

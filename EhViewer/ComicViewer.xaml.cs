@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -22,9 +23,38 @@ namespace EhViewer
     /// </summary>
     public sealed partial class ComicViewer : Page
     {
+        private ViewerViewModel vvm;
         public ComicViewer()
         {
             this.InitializeComponent();
+        }
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            vvm = (ViewerViewModel)e.Parameter;
+            DataContext = vvm;
+        }
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            vvm.Cancel();
+            DataContext = null;
+            vvm = null;
+            base.OnNavigatedFrom(e);
+        }
+        private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.F11)
+            {
+                e.Handled = true;
+                ApplicationView view = ApplicationView.GetForCurrentView();
+                if (view.IsFullScreenMode)
+                {
+                    view.ExitFullScreenMode();
+                }
+                else
+                {
+                    view.TryEnterFullScreenMode();
+                }
+            }
         }
     }
 }

@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace EhViewer
 {
@@ -62,8 +65,11 @@ namespace EhViewer
         {
             if (url is string s)
             {
-                ComicViewer cv = new(new ViewerViewModel(eh, s));
-                cv.Show();
+                Frame rootFrame = Window.Current.Content as Frame;
+                rootFrame.Navigate(typeof(ComicViewer), new ViewerViewModel(eh, s), 
+                    new SlideNavigationTransitionInfo() { 
+                    Effect = SlideNavigationTransitionEffect.FromRight 
+                });
             }
         });
     }

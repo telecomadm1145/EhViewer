@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -123,6 +124,8 @@ namespace EhViewer
         public async IAsyncEnumerable<GalleryImage> GetImagesDocumentAsync(HtmlDocument doc)
         {
             var catalogdiv = doc.GetElementbyId("gdt");
+            HttpClient h = new();
+            Dictionary<Uri, IBitmapFrame> caches = new();
             foreach (var item in catalogdiv.ChildNodes)
             {
                 HtmlNode? div = item;
@@ -148,14 +151,17 @@ namespace EhViewer
 
                         xOffset = xOffset < 0 ? -xOffset : xOffset;
                         yOffset = yOffset < 0 ? -yOffset : yOffset;
-                        try
+                        var uri = new Uri(imageUrl);
+                        IBitmapFrame? atlas;
+                        caches.TryGetValue(uri, out atlas);
+                        if (atlas == null)
                         {
-                            gi.Preview = await LoadCroppedImage(new Uri(imageUrl), new BitmapBounds{ X = (uint)xOffset, Y = (uint)yOffset, Width = (uint)(width - 1), Height = (uint)(height - 1) });
+                            var stream = await h.GetStreamAsync(uri);
+                            MemoryStream ms = new();
+                            await stream.CopyToAsync(ms);
+                            atlas = caches[uri] = await BitmapDecoder.CreateAsync(ms.AsRandomAccessStream());
                         }
-                        catch
-                        {
-                            Debug.Assert(false);
-                        }
+                        gi.Preview = await LoadCroppedImage(atlas, new BitmapBounds { X = (uint)xOffset, Y = (uint)yOffset, Width = (uint)(width - 1), Height = (uint)(height - 1) });
                     }
                     div = div.FirstChild;
                 }
@@ -169,23 +175,13 @@ namespace EhViewer
                 yield return gi;
             }
         }
-        private async Task<ImageSource> LoadCroppedImage(Uri source, BitmapBounds Bounds)
+        private async Task<ImageSource> LoadCroppedImage(IBitmapFrame frame, BitmapBounds Bounds)
         {
-            var httpClient = new HttpClient();
-            var buffer = await httpClient.GetByteArrayAsync(source);
-            var stream = new InMemoryRandomAccessStream();
-            var writer = new DataWriter(stream.GetOutputStreamAt(0));
-            writer.WriteBytes(buffer);
-            await writer.StoreAsync();
-
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
-
             var transform = new BitmapTransform
             {
                 Bounds = Bounds
             };
-            var pixelData = await decoder.GetPixelDataAsync(
+            var pixelData = await frame.GetPixelDataAsync(
 BitmapPixelFormat.Bgra8,
 BitmapAlphaMode.Premultiplied,
 transform,

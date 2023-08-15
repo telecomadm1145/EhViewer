@@ -5,10 +5,71 @@
     xmlns:local="using:EhViewer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d" KeyDown="Page_KeyDown" NavigationCacheMode="Disabled"
+    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+    <d:Page.DataContext>
+        <local:ViewerViewModel/>
+    </d:Page.DataContext>
     <Grid>
-
+        <ScrollViewer>
+            <Grid>
+                <ItemsControl Name="Items" ItemsSource="{Binding GalleryImages}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid MaximumRowsOrColumns="10" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="300" ToolTipService.ToolTip="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding PageUrl}" Margin="5" Background="#01000000" Padding="0">
+                                    <Grid>
+                                        <Image Source="{Binding Preview}">
+                                        </Image>
+                                        <muxc:ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100"/>
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button ToolTipService.ToolTip="保存图集" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                        Command="{Binding Save}" Visibility="{Binding ShowSaveButton}">
+                    <SymbolIcon Symbol="Save"/>
+                </Button>
+            </Grid>
+        </ScrollViewer>
+        <muxc:ProgressRing IsIndeterminate="False" Value="{Binding Progress}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+        <Grid Visibility="{Binding OverlayOpened}">
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+            <Button Background="#a0000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Close}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Border HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid>
+                        <Image Stretch="Uniform" Source="{Binding Current.Source}"/>
+                        <Grid Margin="-30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Prev}"/>
+                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Grid.Column="1" Command="{Binding Next}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Button>
+        </Grid>
     </Grid>
 </Page>
