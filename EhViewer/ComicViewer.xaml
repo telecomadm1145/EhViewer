@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d" KeyDown="Page_KeyDown" NavigationCacheMode="Disabled"
-    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+    mc:Ignorable="d" KeyDown="Page_KeyDown" NavigationCacheMode="Disabled" 
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True">
     <d:Page.DataContext>
         <local:ViewerViewModel/>
     </d:Page.DataContext>
@@ -55,7 +55,10 @@
                     </Setter>
                 </Style>
             </Grid.Resources>
-            <Button Background="#a0000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Close}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Button Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Close}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Escape"/>
+                </Button.KeyboardAccelerators>
                 <Border HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid>
                         <Image Stretch="Uniform" Source="{Binding Current.Source}"/>
@@ -64,8 +67,19 @@
                                 <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
-                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Prev}"/>
-                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Grid.Column="1" Command="{Binding Next}"/>
+                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Prev}">
+                                <Button.KeyboardAccelerators>
+                                    <KeyboardAccelerator Key="A"/>
+                                    <KeyboardAccelerator Key="Left"/>
+                                </Button.KeyboardAccelerators>
+                            </Button>
+                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Grid.Column="1" Command="{Binding Next}">
+                                <Button.KeyboardAccelerators>
+                                    <KeyboardAccelerator Key="D"/>
+                                    <KeyboardAccelerator Key="Space"/>
+                                    <KeyboardAccelerator Key="Right"/>
+                                </Button.KeyboardAccelerators>
+                            </Button>
                         </Grid>
                     </Grid>
                 </Border>

@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -54,10 +55,12 @@ namespace EhViewer
             HtmlDocument doc = new();
             doc.Load(await content.Content.ReadAsStreamAsync());
             var nav = doc.DocumentNode.SelectSingleNode("//body//div[2]//div[2]//div[3]");
-            res.StartUrl = WebUtility.HtmlDecode(nav.SelectSingleNode(".//div[2]//a")?.GetAttributeValue("href", null));
-            res.PrevUrl = WebUtility.HtmlDecode(nav.SelectSingleNode(".//div[3]//a")?.GetAttributeValue("href", null));
-            res.NextUrl = WebUtility.HtmlDecode(nav.SelectSingleNode(".//div[5]//a")?.GetAttributeValue("href", null));
-            res.LastUrl = WebUtility.HtmlDecode(nav.SelectSingleNode(".//div[6]//a")?.GetAttributeValue("href", null));
+            res.StartUrl = WebUtility.HtmlDecode(nav?.SelectSingleNode(".//div[2]//a")?.GetAttributeValue("href", null));
+            res.PrevUrl = WebUtility.HtmlDecode(nav?.SelectSingleNode(".//div[3]//a")?.GetAttributeValue("href", null));
+            res.NextUrl = WebUtility.HtmlDecode(nav?.SelectSingleNode(".//div[5]//a")?.GetAttributeValue("href", null));
+            res.LastUrl = WebUtility.HtmlDecode(nav?.SelectSingleNode(".//div[6]//a")?.GetAttributeValue("href", null));
+            if (nav == null)
+                return res;
             var table = doc.DocumentNode.SelectNodes("//table[1]")[1];
             foreach (var item in table.ChildNodes.Skip(1))
             {
@@ -75,6 +78,36 @@ namespace EhViewer
                 if (query == null)
                     continue;
                 se.Type = query.InnerText;
+                query = item.SelectSingleNode(".//td[2]//div[3]//div[1]");
+                if (query == null)
+                    continue;
+                DateTime time;
+                DateTime.TryParse(query.InnerText,out time);
+                se.PublishTime = time;
+                query = item.SelectSingleNode(".//td[2]//div[3]//div[2]"); // Star
+                if (query == null)
+                    continue;
+                var style = query.GetAttributeValue("style", "");
+                var match = Regex.Match(style, "background-position:(-?\\d+)px (-?\\d+)px;");
+                if (match.Success)
+                {
+                    int val, val2 = 0;
+                    int.TryParse(match.Groups[1].Value,out val);
+                    int.TryParse(match.Groups[2].Value,out val2);
+                    if (val2 != -1)
+                    {
+                        val += 8;
+                    }
+                    se.Rating = (80 - val) / 16;
+                }
+                query = item.SelectSingleNode(".//td[4]//div[1]//a[1]");
+                if (query == null)
+                    continue;
+                se.Uploader = query.InnerText;
+                query = item.SelectSingleNode(".//td[4]//div[2]");
+                int pages = 0;
+                int.TryParse(query.InnerText.Split(' ')[0],out pages);
+                se.Pages = pages;
                 res.Entries.Add(se);
             }
             return res;
@@ -100,12 +133,19 @@ namespace EhViewer
         }
         public async IAsyncEnumerable<GalleryImage> GetImages(string catalogurl)
         {
-            var content = await client.GetAsync(catalogurl);
+            bool reload = false;
+            rel:
+            var content = await client.GetAsync(catalogurl + (reload ? "?nw=session" : ""));
             content.EnsureSuccessStatusCode();
             HtmlDocument doc = new();
             doc.Load(await content.Content.ReadAsStreamAsync());
             var body = doc.DocumentNode.SelectSingleNode(".//html//body");
-            var navi = body.ChildNodes.First(x => x.HasClass("gtb")).SelectSingleNode(".//table//tr");
+            var navi = body.ChildNodes.FirstOrDefault(x => x.HasClass("gtb"))?.SelectSingleNode(".//table//tr");
+            if (navi == null)
+            {
+                reload = true;
+                goto rel;
+            }
             await foreach (var it in GetImagesDocumentAsync(doc))
                 yield return it;
             var c = navi.ChildNodes.Count - 2;

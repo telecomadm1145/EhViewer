@@ -6,8 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d" NavigationCacheMode="Enabled"
-    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+    mc:Ignorable="d" NavigationCacheMode="Enabled" muxc:BackdropMaterial.ApplyToRootOrPageBackground="True">
     <Page.DataContext>
         <local:MainViewModel/>
     </Page.DataContext>
@@ -20,20 +19,19 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Grid MaxWidth="800" Margin="10" Grid.Row="1">
+                <Grid MaxWidth="800" Margin="10" Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Name="QueryContent" Margin="5"/>
+                    <AutoSuggestBox Name="QueryContent" Margin="5" PlaceholderText="输入标签/关键字..."/>
                     <Button HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Command="{Binding Search}" 
                     CommandParameter="{Binding Text,ElementName=QueryContent}" Grid.Column="1" ToolTipService.ToolTip="Search">
                         <SymbolIcon Symbol="Find"/>
                     </Button>
-                    <ProgressRing IsActive="{Binding Loading}" Grid.Column="2"/>
                 </Grid>
-                <Border Grid.Row="2" Background="#207f7f7f" CornerRadius="5" Margin="5"/>
+                <Border Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
                 <ItemsControl Name="Items" ItemsSource="{Binding SearchResult.Entries}" Grid.Row="2" Margin="5">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -43,13 +41,26 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="150"/>
                                         <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="180"/>
                                         <!--<ColumnDefinition Width="200"/>-->
                                     </Grid.ColumnDefinitions>
-                                    <Border Background="#9E2720" BorderBrush="#9E2720" BorderThickness="1" CornerRadius="2" Margin="3" ToolTipService.ToolTip="{Binding Type}">
+                                    <Button CornerRadius="5" Margin="0" Padding="0" ToolTipService.ToolTip="{Binding Type}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                        <Button.Background>
+                                            <SolidColorBrush Color="{Binding Type,Converter={local:CategoryColorConverter}}"/>
+                                        </Button.Background>
                                         <TextBlock Text="{Binding Type}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="15"/>
-                                    </Border>
-                                    <Border Grid.Column="1" Margin="3">
+                                    </Button>
+                                    <Grid Grid.Column="1" Margin="-3">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding PublishTime}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <muxc:RatingControl IsReadOnly="True" Value="{Binding Rating}" Grid.Row="1"/>
+                                    </Grid>
+                                    <Border Grid.Column="2" Margin="3">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition/>
@@ -66,7 +77,7 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Button Padding="2" Margin="0,0,5,0" ToolTipService.ToolTip="{Binding}">
-                                                                <TextBlock Text="{Binding}" FontSize="15" Foreground="White"/>
+                                                                <TextBlock Text="{Binding}" FontSize="15"/>
                                                             </Button>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
@@ -74,21 +85,31 @@
                                             </ScrollViewer>
                                         </Grid>
                                     </Border>
+                                    <Grid Grid.Column="3">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding Uploader}" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1">
+                                            <Run Text="{Binding Pages}"/> 页
+                                        </TextBlock>
+                                    </Grid>
                                 </Grid>
                             </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Grid Grid.Row="3">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="开始页" Command="{Binding To}" CommandParameter="{Binding SearchResult.StartUrl}" Margin="5"/>
-                        <Button Content="上一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.PrevUrl}" Margin="5"/>
-                        <TextBlock Margin="5"/>
-                        <Button Content="下一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.NextUrl}" Margin="5"/>
-                        <Button Content="结束页" Command="{Binding To}" CommandParameter="{Binding SearchResult.LastUrl}" Margin="5"/>
-                    </StackPanel>
+                <Grid Grid.Row="1">
+                    <CommandBar Width="auto" HorizontalAlignment="Center" Background="Transparent" IsOpen="True" DefaultLabelPosition="Right" Margin="5">
+                        <AppBarButton Icon="Previous" Label="开始页" Command="{Binding To}" CommandParameter="{Binding SearchResult.StartUrl}" Margin="5,0,5,0"/>
+                        <AppBarButton Icon="Back" Label="上一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.PrevUrl}" Margin="5,0,5,0"/>
+                        <AppBarButton Icon="Forward" Label="下一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.NextUrl}" Margin="5,0,5,0"/>
+                        <AppBarButton Icon="Next" Label="结束页" Command="{Binding To}" CommandParameter="{Binding SearchResult.LastUrl}" Margin="5,0,5,0"/>
+                    </CommandBar>
                 </Grid>
             </Grid>
         </ScrollViewer>
+        <muxc:ProgressRing IsActive="{Binding Loading}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
     </Grid>
 </Page>

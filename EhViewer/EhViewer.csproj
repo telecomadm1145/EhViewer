@@ -120,6 +120,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CategoryColorConverter.cs" />
     <Compile Include="ComicViewer.xaml.cs">
       <DependentUpon>ComicViewer.xaml</DependentUpon>
     </Compile>

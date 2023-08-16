@@ -107,8 +107,9 @@ namespace EhViewer
                 Limit limit = new(5);
                 foreach (var img in GalleryImages) // this starts the download progress
                 {
+                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
                     downloadTasks.Add(Download(limit, img, _cancellationTokenSource.Token));
-                    await Task.Delay(1000);
+                    await Task.Delay(1000, _cancellationTokenSource.Token);
                 }
                 TaskCompletionSource<bool> tcs = new();
                 _ = Task.WhenAll(downloadTasks).ContinueWith((t) =>
@@ -122,7 +123,6 @@ namespace EhViewer
             }
             catch
             {
-                Debug.Assert(false);
             }
         }
         private class Limit
@@ -192,7 +192,7 @@ namespace EhViewer
 
             var image = new BitmapImage();
             var pv = new BitmapImage();
-            pv.DecodePixelWidth = 300;
+            pv.DecodePixelWidth = 200;
             var totalBytes = response.Content.Headers.ContentLength ?? 1;
             var bytesRead = 0L;
 
