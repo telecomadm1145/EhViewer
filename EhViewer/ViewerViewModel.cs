@@ -225,14 +225,10 @@ namespace EhViewer
         public Visibility OverlayOpened { get; set; } = Visibility.Collapsed;
         public ICommand Next => new RelayCommand(async (object? arg) =>
         {
-            Index++;
             if (Index < GalleryImages.Count)
             {
+                Index++;
                 Current = GalleryImages[Index];
-            }
-            else
-            {
-                Index = 0;
             }
         });
         public ICommand Open => new RelayCommand(async (object? arg) =>
@@ -253,14 +249,10 @@ namespace EhViewer
         });
         public ICommand Prev => new RelayCommand(async (object? arg) =>
         {
-            Index--;
             if (Index >= 0)
             {
+                Index--;
                 Current = GalleryImages[Index];
-            }
-            else
-            {
-                Index = 0;
             }
         });
     }

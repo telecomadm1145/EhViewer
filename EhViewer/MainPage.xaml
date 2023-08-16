@@ -16,23 +16,61 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <Grid MaxWidth="800" Margin="10" Grid.Row="0">
+                <Grid Width="800" Margin="10" Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
-                    <AutoSuggestBox Name="QueryContent" Margin="5" PlaceholderText="输入标签/关键字..."/>
+                    <TextBox Name="QueryContent" Margin="5" PlaceholderText="输入标签/关键字..."/>
                     <Button HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Command="{Binding Search}" 
-                    CommandParameter="{Binding Text,ElementName=QueryContent}" Grid.Column="1" ToolTipService.ToolTip="Search">
+                    CommandParameter="{Binding Text,ElementName=QueryContent}" Grid.Column="2" ToolTipService.ToolTip="搜索">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Modifiers="Control" Key="Enter"/>
+                        </Button.KeyboardAccelerators>
                         <SymbolIcon Symbol="Find"/>
                     </Button>
+                    <Button HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Grid.Column="1" ToolTipService.ToolTip="以图搜图">
+                        <SymbolIcon Symbol="OpenFile"/>
+                    </Button>
                 </Grid>
-                <Border Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
-                <ItemsControl Name="Items" ItemsSource="{Binding SearchResult.Entries}" Grid.Row="2" Margin="5">
+                <muxc:Expander Grid.Row="1" HorizontalAlignment="Center" Header="高级选项" Width="800">
+                    <StackPanel Spacing="20">
+                        <StackPanel Orientation="Horizontal" Spacing="30" HorizontalAlignment="Center">
+                            <ToggleButton Content="浏览被移除的画廊"/>
+                            <ToggleButton Content="只搜索有种子的画廊"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="30" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="页面数量在" VerticalAlignment="Center"/>
+                                <TextBox Width="50"/>
+                                <TextBlock Text="和" VerticalAlignment="Center"/>
+                                <TextBox Width="50"/>
+                                <TextBlock Text="之间" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <ToggleButton Content="最低星数" Name="LowestRatingToggle"/>
+                                <muxc:RatingControl VerticalAlignment="Center" IsEnabled="{Binding IsChecked,ElementName=LowestRatingToggle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="30" HorizontalAlignment="Center">
+                            <ToggleButton Content="不搜索Language"/>
+                            <ToggleButton Content="不搜索Uploader"/>
+                            <ToggleButton Content="不搜索Tags"/>
+                        </StackPanel>
+                        <TextBlock FontSize="18" Text="下列选项仅用于文件搜索" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" Spacing="30" HorizontalAlignment="Center">
+                            <ToggleButton Content="扫描相似图片"/>
+                            <ToggleButton Content="只搜索封面"/>
+                        </StackPanel>
+                    </StackPanel>
+                </muxc:Expander>
+                <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
+                <ItemsControl Name="Items" ItemsSource="{Binding SearchResult.Entries}" Grid.Row="3" Margin="5">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Background="#01000000" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -46,19 +84,40 @@
                                         <ColumnDefinition Width="180"/>
                                         <!--<ColumnDefinition Width="200"/>-->
                                     </Grid.ColumnDefinitions>
-                                    <Button CornerRadius="5" Margin="0" Padding="0" ToolTipService.ToolTip="{Binding Type}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                        <Button.Background>
+                                    <Border CornerRadius="5" Margin="0" Padding="0" ToolTipService.ToolTip="{Binding Type}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                        <Border.ContextFlyout>
+                                            <muxc:MenuBarItemFlyout>
+                                                <MenuFlyoutItem Text="复制">
+                                                    <MenuFlyoutItem.KeyboardAccelerators>
+                                                        <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                                                    </MenuFlyoutItem.KeyboardAccelerators>
+                                                </MenuFlyoutItem>
+                                            </muxc:MenuBarItemFlyout>
+                                        </Border.ContextFlyout>
+                                        <Border.Background>
                                             <SolidColorBrush Color="{Binding Type,Converter={local:CategoryColorConverter}}"/>
-                                        </Button.Background>
+                                        </Border.Background>
                                         <TextBlock Text="{Binding Type}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="15"/>
-                                    </Button>
+                                    </Border>
                                     <Grid Grid.Column="1" Margin="-3">
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
                                             <RowDefinition/>
                                         </Grid.RowDefinitions>
-                                        <TextBlock Text="{Binding PublishTime}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <muxc:RatingControl IsReadOnly="True" Value="{Binding Rating}" Grid.Row="1"/>
+                                        <Border HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border.ContextFlyout>
+                                                <muxc:MenuBarItemFlyout>
+                                                    <MenuFlyoutItem Text="复制">
+                                                        <MenuFlyoutItem.KeyboardAccelerators>
+                                                            <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                                                        </MenuFlyoutItem.KeyboardAccelerators>
+                                                    </MenuFlyoutItem>
+                                                </muxc:MenuBarItemFlyout>
+                                            </Border.ContextFlyout>
+                                            <TextBlock Text="{Binding PublishTime}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            </TextBlock>
+                                        </Border>
+                                        <muxc:RatingControl IsReadOnly="True" Value="{Binding Rating}" Grid.Row="1" ToolTipService.ToolTip="{Binding Rating}"/>
                                     </Grid>
                                     <Border Grid.Column="2" Margin="3">
                                         <Grid>
@@ -77,6 +136,22 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Button Padding="2" Margin="0,0,5,0" ToolTipService.ToolTip="{Binding}">
+                                                                <Button.ContextFlyout>
+                                                                    <muxc:MenuBarItemFlyout>
+                                                                        <MenuFlyoutItem Text="复制">
+                                                                            <MenuFlyoutItem.KeyboardAccelerators>
+                                                                                <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                                                                            </MenuFlyoutItem.KeyboardAccelerators>
+                                                                        </MenuFlyoutItem>
+                                                                        <MenuFlyoutItem Text="添加到搜索">
+                                                                            <MenuFlyoutItem.KeyboardAccelerators>
+                                                                                <KeyboardAccelerator Modifiers="Control" Key="A"/>
+                                                                            </MenuFlyoutItem.KeyboardAccelerators>
+                                                                        </MenuFlyoutItem>
+                                                                        <MenuFlyoutSeparator/>
+                                                                        <MenuFlyoutItem Text="{Binding}" IsEnabled="False"/>
+                                                                    </muxc:MenuBarItemFlyout>
+                                                                </Button.ContextFlyout>
                                                                 <TextBlock Text="{Binding}" FontSize="15"/>
                                                             </Button>
                                                         </DataTemplate>
@@ -100,7 +175,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Grid Grid.Row="1">
+                <Grid Grid.Row="5">
                     <CommandBar Width="auto" HorizontalAlignment="Center" Background="Transparent" IsOpen="True" DefaultLabelPosition="Right" Margin="5">
                         <AppBarButton Icon="Previous" Label="开始页" Command="{Binding To}" CommandParameter="{Binding SearchResult.StartUrl}" Margin="5,0,5,0"/>
                         <AppBarButton Icon="Back" Label="上一页" Command="{Binding To}" CommandParameter="{Binding SearchResult.PrevUrl}" Margin="5,0,5,0"/>

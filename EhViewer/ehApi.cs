@@ -96,9 +96,9 @@ namespace EhViewer
                     int.TryParse(match.Groups[2].Value,out val2);
                     if (val2 != -1)
                     {
-                        val += 8;
+                        val -= 8;
                     }
-                    se.Rating = (80 - val) / 16;
+                    se.Rating = (80 + val) / 16.0;
                 }
                 query = item.SelectSingleNode(".//td[4]//div[1]//a[1]");
                 if (query == null)

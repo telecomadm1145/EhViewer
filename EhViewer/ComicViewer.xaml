@@ -6,26 +6,105 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d" KeyDown="Page_KeyDown" NavigationCacheMode="Disabled" 
+    mc:Ignorable="d" KeyDown="Page_KeyDown" NavigationCacheMode="Disabled"
     muxc:BackdropMaterial.ApplyToRootOrPageBackground="True">
     <d:Page.DataContext>
         <local:ViewerViewModel/>
     </d:Page.DataContext>
     <Grid>
         <ScrollViewer>
-            <Grid>
-                <ItemsControl Name="Items" ItemsSource="{Binding GalleryImages}">
+            <StackPanel>
+                <Border CornerRadius="10" Background="{ThemeResource LayerFillColorDefaultBrush}" Margin="5" HorizontalAlignment="Center" Padding="5" MinWidth="400">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding Title,FallbackValue=Unknown}" FontSize="18" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding RawTitle,FallbackValue=Unknown}" FontSize="15" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border CornerRadius="10" Background="{ThemeResource LayerFillColorDefaultBrush}" MaxWidth="1600" Margin="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border VerticalAlignment="Center" CornerRadius="10" Background="{ThemeResource LayerFillColorDefaultBrush}" Margin="10">
+                            <Image Width="250" Source="{Binding Cover}"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Spacing="20" Margin="10" Width="200">
+                            <Border Width="120" Padding="5" CornerRadius="5" HorizontalAlignment="Center">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding Type,FallbackValue=#7F7F7F,Converter={local:CategoryColorConverter}}"/>
+                                </Border.Background>
+                                <TextBlock Text="{Binding Type,FallbackValue=Unknown}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
+                            </Border>
+                            <TextBlock Text="{Binding Publisher,FallbackValue=Unknown}" FontSize="18" HorizontalAlignment="Center"/>
+                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="上传日期:" FontSize="15" Margin="5"/>
+                                    <TextBlock Text="父画廊:" FontSize="15" Margin="5" Grid.Row="1"/>
+                                    <TextBlock Text="是否可见:" FontSize="15" Margin="5" Grid.Row="2"/>
+                                    <TextBlock Text="语言:" FontSize="15" Margin="5" Grid.Row="3"/>
+                                    <TextBlock Text="文件大小:" FontSize="15" Margin="5" Grid.Row="4"/>
+                                    <TextBlock Text="页面数量:" FontSize="15" Margin="5" Grid.Row="5"/>
+                                    <TextBlock Text="收藏次数:" FontSize="15" Margin="5" Grid.Row="6"/>
+                                    <TextBlock Text="{Binding UploadTime,FallbackValue=1970/1/1}" FontSize="15" Margin="5" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding ParentGallery,FallbackValue=无}" FontSize="15" Margin="5" Grid.Row="1" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding GalleryVisible,FallbackValue=是}" FontSize="15" Margin="5" Grid.Row="2" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding Language,FallbackValue=中文(翻译)}" FontSize="15" Margin="5" Grid.Row="3" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding GallerySize,FallbackValue=11.45 MB}" FontSize="15" Margin="5" Grid.Row="4" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding Pages,FallbackValue=1919}" FontSize="15" Margin="5" Grid.Row="5" Grid.Column="1"/>
+                                    <TextBlock Text="{Binding Favorites,FallbackValue=810}" FontSize="15" Margin="5" Grid.Row="6" Grid.Column="1"/>
+                                </Grid>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Margin="5" Spacing="10">
+                                <TextBlock Text="打分:" Margin="0,4,0,0"/>
+                                <StackPanel>
+                                    <muxc:RatingControl Value="{Binding Rating,FallbackValue=5}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Margin="0,5,5,0">
+                                        平均为 <Run Text="{Binding AverageRating,FallbackValue=0}"/> 分
+                                        </TextBlock>
+                                        <Button Content="提交"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <TextBlock Text="{Binding RatingCount,FallbackValue=0}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <muxc:ProgressRing IsIndeterminate="{Binding IsLoading}" Value="{Binding Progress}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding IsLoadingVisible}"/>
+        <ScrollViewer Visibility="Collapsed">
+            <Grid Margin="20" MaxWidth="1600">
+                <Border Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}" CornerRadius="5"/>
+                <ItemsControl Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid MaximumRowsOrColumns="10" Orientation="Horizontal"/>
+                            <VariableSizedWrapGrid MaximumRowsOrColumns="20" Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Width="300" ToolTipService.ToolTip="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid Width="250" ToolTipService.ToolTip="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Button Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding PageUrl}" Margin="5" Background="#01000000" Padding="0">
                                     <Grid>
-                                        <Image Source="{Binding Preview}">
+                                        <Image Source="{Binding Source}">
                                         </Image>
                                         <muxc:ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100" Visibility="{Binding DataContext.IsLoadingVisible,ElementName=Items}"/>
                                     </Grid>
@@ -34,13 +113,13 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Button ToolTipService.ToolTip="保存图集" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                <Button ToolTipService.ToolTip="保存图集" HorizontalAlignment="Right" VerticalAlignment="Top" 
                         Command="{Binding Save}" Visibility="{Binding ShowSaveButton}">
                     <SymbolIcon Symbol="Save"/>
                 </Button>
             </Grid>
         </ScrollViewer>
-        <muxc:ProgressRing IsIndeterminate="{Binding IsLoading}" Value="{Binding Progress}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding IsLoadingVisible}"/>
+
         <Grid Visibility="{Binding OverlayOpened}">
             <Grid.Resources>
                 <Style TargetType="Button">
