@@ -82,7 +82,7 @@ namespace EhViewer
                 if (query == null)
                     continue;
                 DateTime time;
-                DateTime.TryParse(query.InnerText,out time);
+                DateTime.TryParse(query.InnerText, out time);
                 se.PublishTime = time;
                 query = item.SelectSingleNode(".//td[2]//div[3]//div[2]"); // Star
                 if (query == null)
@@ -92,8 +92,8 @@ namespace EhViewer
                 if (match.Success)
                 {
                     int val, val2 = 0;
-                    int.TryParse(match.Groups[1].Value,out val);
-                    int.TryParse(match.Groups[2].Value,out val2);
+                    int.TryParse(match.Groups[1].Value, out val);
+                    int.TryParse(match.Groups[2].Value, out val2);
                     if (val2 != -1)
                     {
                         val -= 8;
@@ -106,7 +106,7 @@ namespace EhViewer
                 se.Uploader = query.InnerText;
                 query = item.SelectSingleNode(".//td[4]//div[2]");
                 int pages = 0;
-                int.TryParse(query.InnerText.Split(' ')[0],out pages);
+                int.TryParse(query.InnerText.Split(' ')[0], out pages);
                 se.Pages = pages;
                 res.Entries.Add(se);
             }
@@ -124,6 +124,103 @@ namespace EhViewer
 
             return imgnode.GetAttributes().First(x => x.Name == "src").Value;
         }
+        public struct GalleryInfo
+        {
+            public string Title;
+            public string RawTitle;
+            public Dictionary<string, List<string>> Tags;
+            public Dictionary<string, string> Details;
+            public double Rating;
+            public int RateCount;
+            public string Publisher;
+        }
+        public async Task<GalleryInfo> GetGalleryInfo(string catalogurl)
+        {
+            bool reload = false;
+        rel:
+            var content = await client.GetAsync(catalogurl + (reload ? "?nw=session" : ""));
+            content.EnsureSuccessStatusCode();
+            HtmlDocument doc = new();
+            doc.Load(await content.Content.ReadAsStreamAsync());
+            var details = doc.GetElementbyId("gdd")?.SelectNodes(".//table//tr");
+            if (details == null || details.Count <= 1)
+            {
+                reload = true;
+                goto rel;
+            }
+            GalleryInfo gi = default;
+            gi.Details = new();
+            foreach (var item in details)
+            {
+                if (item.ChildNodes.Count <= 1)
+                {
+                    continue;
+                }
+                var item0 = item.ChildNodes[0].InnerText;
+                var item1 = item.ChildNodes[1].InnerText;
+                if (item0 == "Language:")
+                {
+                    var items = item1.Split(" ");
+                    if (items.Length > 1)
+                    {
+                        item1 = items[0] + "(翻译)";
+                    }
+                }
+                item0 = item0 switch
+                {
+                    "Posted:" => "发布时间",
+                    "Parent:" => "父画集",
+                    "Visible:" => "是否公开",
+                    "Language:" => "语言",
+                    "File Size:" => "文件大小",
+                    "Length:" => "页数",
+                    "Favorited:" => "收藏数",
+                    _ => item0.Substring(0, item0.Length - 1),
+                };
+                gi.Details.Add(item0, item1);
+            }
+            gi.Title = doc.GetElementbyId("gn")?.InnerText;
+            gi.RawTitle = doc.GetElementbyId("gj")?.InnerText;
+            var ratinglabel = (doc.GetElementbyId("rating_label")?.InnerText ?? "").Split(":");
+            if (ratinglabel.Length > 1)
+            {
+                double rating = 0;
+                double.TryParse(ratinglabel[1], out rating);
+                gi.Rating = rating;
+            }
+            int ratecount = 0;
+            int.TryParse(doc.GetElementbyId("rating_count")?.InnerText, out ratecount);
+            gi.RateCount = ratecount;
+            gi.Tags = new();
+            var query = doc.GetElementbyId("taglist")?.SelectSingleNode(".//table");
+            if (query != null)
+            {
+                foreach (var item in query.ChildNodes)
+                {
+                    var key = item.SelectSingleNode(".//td[1]")?.InnerText;
+                    if (key == null)
+                        continue;
+                    var query2 = item.SelectSingleNode(".//td[2]")?.ChildNodes;
+                    if (query2 == null)
+                        continue;
+                    List<string> cache = new();
+                    foreach (var item2 in query2)
+                    {
+                        var query3 = item2.SelectSingleNode(".//a");
+                        if (query3 == null)
+                            continue;
+                        if (!string.IsNullOrWhiteSpace(query3.InnerText))
+                            cache.Add(query3.InnerText);
+                    }
+                    if (cache.Count > 0)
+                    {
+                        gi.Tags.Add(key, cache);
+                    }
+                }
+            }
+            gi.Publisher = doc.GetElementbyId("gdn")?.SelectSingleNode(".//a")?.InnerText;
+            return gi;
+        }
         public struct GalleryImage
         {
             public string PageUrl { get; set; }
@@ -134,7 +231,7 @@ namespace EhViewer
         public async IAsyncEnumerable<GalleryImage> GetImages(string catalogurl)
         {
             bool reload = false;
-            rel:
+        rel:
             var content = await client.GetAsync(catalogurl + (reload ? "?nw=session" : ""));
             content.EnsureSuccessStatusCode();
             HtmlDocument doc = new();

@@ -25,6 +25,16 @@ namespace EhViewer
     internal class ViewerViewModel
     {
         EhApi api;
+
+        public Dictionary<string, string> Details { get; set; }
+        public string Title { get; set; }
+        public string RawTitle { get; set; }
+        public double Rating { get; set; } = 5;
+        public ImageSource? Cover { get; set; }
+        public int RatingCount { get; set; }
+        public string Publisher { get; set; }
+        public Dictionary<string,List<string>> Tags { get; set; }
+
         [AddINotifyPropertyChangedInterface]
         public class ViewerImage
         {
@@ -91,8 +101,18 @@ namespace EhViewer
         {
             try
             {
+                var info = await api.GetGalleryInfo(url);
+                Details = info.Details;
+                Title = info.Title;
+                RawTitle = info.RawTitle;
+                Rating = info.Rating;
+                RatingCount = info.RateCount;
+                Tags = info.Tags;
+                Publisher = info.Publisher;
+
                 await foreach (var img in api.GetImages(url))
                 {
+                    Cover ??= img.Preview;
                     ViewerImage vi = new()
                     {
                         PageUrl = img.PageUrl,
@@ -103,12 +123,21 @@ namespace EhViewer
                     GalleryImages.Add(vi);
                 }
                 IsLoading = false;
+                bool is_cover_pushed = false;
                 List<Task> downloadTasks = new();
                 Limit limit = new(5);
                 foreach (var img in GalleryImages) // this starts the download progress
                 {
                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-                    downloadTasks.Add(Download(limit, img, _cancellationTokenSource.Token));
+                    var tsk = Download(limit, img, _cancellationTokenSource.Token);
+                    if (!is_cover_pushed)
+                    {
+                        _ = tsk.ContinueWith((t) => {
+                            Cover = img.Source;
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                        is_cover_pushed = true;
+                    }
+                    downloadTasks.Add(tsk);
                     await Task.Delay(1000, _cancellationTokenSource.Token);
                 }
                 TaskCompletionSource<bool> tcs = new();
