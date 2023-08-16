@@ -52,6 +52,7 @@ namespace EhViewer
         public bool IsLoading { get; set; } = true;
         public Visibility ShowSaveButton { get; set; } = Visibility.Collapsed;
         public Visibility IsLoadingVisible { get; set; } = Visibility.Visible;
+        public Visibility GalleryViewVisible { get; set; } = Visibility.Collapsed;
         public ICommand Save => new RelayCommand(async (_) =>
         {
             if (ShowSaveButton == Visibility.Collapsed)
@@ -78,6 +79,15 @@ namespace EhViewer
             };
 
             await messageDialog.ShowAsync();
+        });
+
+        public ICommand OpenGalleryView => new RelayCommand((_) =>
+        {
+            GalleryViewVisible = Visibility.Visible;
+        });
+        public ICommand CloseGalleryView => new RelayCommand((_) =>
+        {
+            GalleryViewVisible = Visibility.Collapsed;
         });
         private int RawProgress = 0;
         public double Progress { get; set; } = 0;
