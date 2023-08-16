@@ -111,9 +111,9 @@
                 </StackPanel>
             </Grid>
         </Grid>
-        <ScrollViewer Visibility="{Binding GalleryViewVisible}">
+        <ScrollViewer Visibility="{Binding GalleryViewVisible}" Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}">
             <Grid Margin="20" MaxWidth="1600">
-                <Border Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}" CornerRadius="5"/>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5"/>
                 <ItemsControl Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
