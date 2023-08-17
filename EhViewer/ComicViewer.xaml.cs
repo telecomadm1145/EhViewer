@@ -24,21 +24,17 @@ namespace EhViewer
     public sealed partial class ComicViewer : Page
     {
         private ViewerViewModel vvm;
-        public ComicViewer()
+        internal ComicViewer(ViewerViewModel vvm)
         {
+            this.vvm = vvm;
+            Unloaded += ComicViewer_Unloaded;
+            DataContext = vvm;
             this.InitializeComponent();
         }
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+
+        private void ComicViewer_Unloaded(object sender, RoutedEventArgs e)
         {
-            vvm = (ViewerViewModel)e.Parameter;
-            DataContext = vvm;
-        }
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            vvm.Cancel();
-            DataContext = null;
-            vvm = null;
-            base.OnNavigatedFrom(e);
+            vvm?.Cancel();
         }
         private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
         {

@@ -5,8 +5,8 @@
     xmlns:local="using:EhViewer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d" NavigationCacheMode="Enabled" muxc:BackdropMaterial.ApplyToRootOrPageBackground="True">
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" Background="{ThemeResource LayerFillColorDefaultBrush}"
+    mc:Ignorable="d">
     <Page.DataContext>
         <local:MainViewModel/>
     </Page.DataContext>

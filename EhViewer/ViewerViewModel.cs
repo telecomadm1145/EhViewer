@@ -164,31 +164,6 @@ namespace EhViewer
             {
             }
         }
-        private class Limit
-        {
-            public Limit(int Max)
-            {
-                this.Max = Max;
-            }
-            public int Max = 0;
-            public volatile int Value = 0;
-            public async Task WaitForAvaliable()
-            {
-                while (Value >= Max)
-                {
-                    await Task.Delay(20);
-                }
-            }
-            public async Task Enter()
-            {
-                await WaitForAvaliable();
-                Value++;
-            }
-            public void Exit()
-            {
-                Value--;
-            }
-        }
         private async Task Download(Limit l, ViewerImage img, CancellationToken cancel)
         {
             int id = DateTime.Now.GetHashCode() & 0xFFF;
@@ -198,12 +173,12 @@ namespace EhViewer
                 await l.Enter();
                 img.Loading = false;
                 Debug.WriteLine($"[{id}]Gathering {img.PageUrl}...");
-                var bigurl = await api.GatherImageLink(img.PageUrl);
-                Debug.WriteLine($"[{id}]Downloading {bigurl}...");
+                var imageUrl = await api.GatherImageLink(img.PageUrl);
+                Debug.WriteLine($"[{id}]Downloading {imageUrl}...");
             redo:
                 try
                 {
-                    await DownloadImageAsync(bigurl, cancel, img);
+                    await DownloadImageAsync(imageUrl, cancel, img);
                 }
                 catch
                 {
@@ -212,7 +187,7 @@ namespace EhViewer
                     await Task.Delay(9000);
                     goto redo;
                 }
-                Debug.WriteLine($"[{id}]Downloaded {bigurl}!");
+                Debug.WriteLine($"[{id}]Downloaded {imageUrl}!");
                 img.Progress = 100;
                 RawProgress++;
                 Progress = (double)RawProgress / GalleryImages.Count * 100;
@@ -262,7 +237,7 @@ namespace EhViewer
         public ViewerImage? Current { get; set; }
         public int Index { get; set; } = 0;
         public Visibility OverlayOpened { get; set; } = Visibility.Collapsed;
-        public ICommand Next => new RelayCommand(async (object? arg) =>
+        public ICommand Next => new RelayCommand((object? arg) =>
         {
             if (Index < GalleryImages.Count)
             {
@@ -270,7 +245,7 @@ namespace EhViewer
                 Current = GalleryImages[Index];
             }
         });
-        public ICommand Open => new RelayCommand(async (object? arg) =>
+        public ICommand Open => new RelayCommand((object? arg) =>
         {
             if (arg is string s)
             {
@@ -282,11 +257,11 @@ namespace EhViewer
             }
             OverlayOpened = Visibility.Visible;
         });
-        public ICommand Close => new RelayCommand(async (object? arg) =>
+        public ICommand Close => new RelayCommand((object? arg) =>
         {
             OverlayOpened = Visibility.Collapsed;
         });
-        public ICommand Prev => new RelayCommand(async (object? arg) =>
+        public ICommand Prev => new RelayCommand((object? arg) =>
         {
             if (Index >= 0)
             {

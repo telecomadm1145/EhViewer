@@ -11,6 +11,7 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Controls;
 
 namespace EhViewer
 {
@@ -61,14 +62,15 @@ namespace EhViewer
                 }
             }
         });
-        public ICommand Open => new RelayCommand(async (object? url) =>
+        public ICommand Open => new RelayCommand((object? url) =>
         {
             if (url is string s)
             {
-                Frame rootFrame = Window.Current.Content as Frame;
-                rootFrame.Navigate(typeof(ComicViewer), new ViewerViewModel(eh, s), 
-                    new SlideNavigationTransitionInfo() { 
-                    Effect = SlideNavigationTransitionEffect.FromRight 
+                TabView rootFrame = Window.Current.Content as TabView;
+                rootFrame.TabItems.Add(new TabViewItem()
+                {
+                    Header = "漫画",
+                    Content = new ComicViewer(new ViewerViewModel(eh, s)),
                 });
             }
         });
