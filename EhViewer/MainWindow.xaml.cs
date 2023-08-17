@@ -48,5 +48,15 @@ namespace EhViewer
 
             CustomDragRegion.Height = ShellTitlebarInset.Height = sender.Height;
         }
+
+        private void TabView_AddTabButtonClick(TabView sender, object args)
+        {
+            TabViewItem tvi = new();
+            tvi.Header = "首页";
+            Frame nav = new();
+            nav.Navigate(typeof(NavigationPage), nav);
+            tvi.Content = nav;
+            TabItems.Add(tvi);
+        }
     }
 }

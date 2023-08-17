@@ -65,7 +65,12 @@ namespace EhViewer
             {
                 if (rootFrame.TabItems.Count == 0)
                 {
-                    rootFrame.TabItems.Add(new TabViewItem() { Header = "主页", IsClosable = false, Content = new MainPage() });
+                    TabViewItem tvi = new();
+                    tvi.Header = "首页";
+                    Frame nav = new();
+                    nav.Navigate(typeof(NavigationPage),nav);
+                    tvi.Content = nav;
+                    rootFrame.TabItems.Add(tvi);
                 }
                 // 确保当前窗口处于活动状态
                 Window.Current.Activate();
