@@ -32,6 +32,8 @@ namespace EhViewer
             coreTitleBar.LayoutMetricsChanged += CoreTitleBar_LayoutMetricsChanged;
 
             Window.Current.SetTitleBar(CustomDragRegion);
+
+            
         }
         private void CoreTitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
         {
@@ -53,10 +55,19 @@ namespace EhViewer
         {
             TabViewItem tvi = new();
             tvi.Header = "首页";
-            Frame nav = new();
-            nav.Navigate(typeof(NavigationPage), nav);
-            tvi.Content = nav;
+            //Frame nav = new();
+            //nav.Navigate(typeof(NavigationPage), nav);
+            tvi.Content = new MainPage();
             TabItems.Add(tvi);
+        }
+
+        private void TabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+        {
+            if (args.Tab.Content is ICloseable c)
+            {
+                c.Close();
+            }
+            sender.TabItems.Remove(args.Tab);
         }
     }
 }

@@ -6,27 +6,63 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+    muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Frame x:Name="MyFrame">
         <GridView x:Name="NavigationGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <GridViewItem x:Name="ToSerach">
+            <GridViewItem x:Name="ToSearch" Padding="17" Tag="Search">
                 <Grid Width="auto" Height="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" HorizontalAlignment="Center">
+                    <Grid Grid.Row="0" Margin="0,0,0,3" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <SymbolIcon Symbol="Find" Grid.Column="0"/>
-                        <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">搜索</TextBlock>
+                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">搜索</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">从搜索开始看本</TextBlock>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">从网上整点本子</TextBlock>
+                </Grid>
+            </GridViewItem>
+            <GridViewItem x:Name="ToFile" Padding="17" Tag="File">
+                <Grid Width="auto" Height="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,3" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <SymbolIcon Symbol="OpenFile" Grid.Column="0"/>
+                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">文件</TextBlock>
+                    </Grid>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">看点自己的私藏货</TextBlock>
+                </Grid>
+            </GridViewItem>
+            <GridViewItem x:Name="ToSetting" Padding="17" Tag="Setting">
+                <Grid Width="auto" Height="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,3" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <SymbolIcon Symbol="Setting" Grid.Column="0"/>
+                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">设置</TextBlock>
+                    </Grid>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">调教EhViewer</TextBlock>
                 </Grid>
             </GridViewItem>
         </GridView>
-    </Grid>
+    </Frame>
 </Page>

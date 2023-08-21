@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls" IsAddTabButtonVisible="True"
-    mc:Ignorable="d" muxc:BackdropMaterial.ApplyToRootOrPageBackground="True"
+    mc:Ignorable="d" muxc:BackdropMaterial.ApplyToRootOrPageBackground="True" TabCloseRequested="TabView_TabCloseRequested"
     VerticalAlignment="Stretch" Padding="0" Margin="0" AddTabButtonClick="TabView_AddTabButtonClick">
     <muxc:TabView.TabStripHeader>
         <Grid x:Name="ShellTitlebarInset" Background="Transparent" Width="32"/>

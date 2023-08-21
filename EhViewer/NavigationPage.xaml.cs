@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -22,12 +23,19 @@ namespace EhViewer
     /// </summary>
     public sealed partial class NavigationPage : Page
     {
-        private Frame _frame;
-
-        public NavigationPage(Frame frame)
+        public NavigationPage()
         {
             this.InitializeComponent();
-            _frame = frame;
+            NavigationGrid.SelectionChanged += NavigationGrid_SelectionChanged;
+        }
+
+        private void NavigationGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            MyFrame.Navigate((((GridViewItem)(e.AddedItems[0])).Tag switch
+            {
+                "Search" => typeof(MainPage),
+                _ => typeof(MainWindow)
+            }));
         }
     }
 }

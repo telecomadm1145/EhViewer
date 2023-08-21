@@ -32,6 +32,7 @@ namespace EhViewer
             public string Uploader { get; set; }
             public int Pages { get; set; }
             public string Url { get; set; }
+            public string PreviewUrl { get; set; }
         }
         public struct SearchResult
         {
@@ -108,6 +109,12 @@ namespace EhViewer
                 int pages = 0;
                 int.TryParse(query.InnerText.Split(' ')[0], out pages);
                 se.Pages = pages;
+                query = item.SelectSingleNode(".//td[2]//div[2]//div[1]//img");
+                if (query == null)
+                    continue;
+                se.PreviewUrl = query.GetAttributeValue("data-src", "");
+                if(string.IsNullOrWhiteSpace(se.PreviewUrl))
+                    se.PreviewUrl = query.GetAttributeValue("src", "");
                 res.Entries.Add(se);
             }
             return res;

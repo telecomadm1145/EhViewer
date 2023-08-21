@@ -24,7 +24,7 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
                 <Grid>
-                    <Grid Margin="25" VerticalAlignment="Center">
+                    <Grid Margin="25" VerticalAlignment="Center" MaxWidth="600">
                         <Border CornerRadius="10">
                             <Image Source="{Binding Cover}" Stretch="Uniform"/>
                         </Border>
@@ -161,7 +161,7 @@
                 <Border HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid>
                         <Image Stretch="Uniform" Source="{Binding Current.Source}"/>
-                        <Grid Margin="-30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid Margin="-30,0,-30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="1*"/>

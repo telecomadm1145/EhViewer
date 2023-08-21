@@ -21,18 +21,17 @@ namespace EhViewer
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
-    public sealed partial class ComicViewer : Page
+    public sealed partial class ComicViewer : Page,ICloseable
     {
         private ViewerViewModel vvm;
         internal ComicViewer(ViewerViewModel vvm)
         {
             this.vvm = vvm;
-            Unloaded += ComicViewer_Unloaded;
             DataContext = vvm;
             this.InitializeComponent();
         }
 
-        private void ComicViewer_Unloaded(object sender, RoutedEventArgs e)
+        public void Close()
         {
             vvm?.Cancel();
         }

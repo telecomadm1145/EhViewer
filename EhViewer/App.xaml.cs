@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -67,33 +68,16 @@ namespace EhViewer
                 {
                     TabViewItem tvi = new();
                     tvi.Header = "首页";
-                    Frame nav = new();
-                    nav.Navigate(typeof(NavigationPage),nav);
-                    tvi.Content = nav;
+                    //Frame nav = new();
+                    //nav.Navigate(typeof(NavigationPage),nav);
+                    tvi.Content = new NavigationPage();
+                    tvi.IsClosable = false;
                     rootFrame.TabItems.Add(tvi);
                 }
                 // 确保当前窗口处于活动状态
                 Window.Current.Activate();
             }
         }
-
-        /// <summary>
-        /// 导航到特定页失败时调用
-        /// </summary>
-        ///<param name="sender">导航失败的框架</param>
-        ///<param name="e">有关导航失败的详细信息</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
-        }
-
-        /// <summary>
-        /// 在将要挂起应用程序执行时调用。  在不知道应用程序
-        /// 无需知道应用程序会被终止还是会恢复，
-        /// 并让内存内容保持不变。
-        /// </summary>
-        /// <param name="sender">挂起的请求的源。</param>
-        /// <param name="e">有关挂起请求的详细信息。</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
