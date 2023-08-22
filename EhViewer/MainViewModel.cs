@@ -25,7 +25,8 @@ namespace EhViewer
         private EhApi eh = new();
         public bool Loading { get; set; } = false;
         public bool Error { get; set; } = false;
-        public struct Entry
+        [AddINotifyPropertyChangedInterface]
+        public class Entry
         {
             public string Type { get; set; }
             public DateTime PublishTime { get; set; }
@@ -71,7 +72,7 @@ namespace EhViewer
             NextUrl = sr.NextUrl;
             foreach (var entry in sr.Entries)
             {
-                Entry e = default;
+                Entry e = new();
                 e.Type = entry.Type;
                 e.PublishTime = entry.PublishTime;
                 e.Name = entry.Name;
@@ -80,16 +81,22 @@ namespace EhViewer
                 e.Uploader = entry.Uploader;
                 e.Pages = entry.Pages;
                 e.Url = entry.Url;
-                BitmapImage bi = new();
-                var stm = await hc.GetStreamAsync(entry.PreviewUrl);
-                MemoryStream ms = new();
-                await stm.CopyToAsync(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-                await bi.SetSourceAsync(ms.AsRandomAccessStream());
-                e.Preview = bi;
                 Entries.Add(e);
+                _ = LoadPreview(hc, entry, e);
             }
         }
+
+        private static async Task LoadPreview(HttpClient hc, EhApi.SearchEntry entry, Entry e)
+        {
+            BitmapImage bi = new();
+            var stm = await hc.GetStreamAsync(entry.PreviewUrl);
+            MemoryStream ms = new();
+            await stm.CopyToAsync(ms);
+            ms.Seek(0, SeekOrigin.Begin);
+            await bi.SetSourceAsync(ms.AsRandomAccessStream());
+            e.Preview = bi;
+        }
+
         public ICommand InfiniteLoad => new RelayCommand(async (object? url) =>
         {
             if (string.IsNullOrEmpty(NextUrl))
