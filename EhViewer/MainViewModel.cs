@@ -37,6 +37,8 @@ namespace EhViewer
             public int Pages { get; set; }
             public string Url { get; set; }
             public BitmapImage Preview { get; set; }
+            public double Height { get; set; }
+            public double Width => 300;
         }
         public ObservableCollection<Entry> Entries { get; set; } = new();
         public string NextUrl { get; set; }
@@ -81,6 +83,7 @@ namespace EhViewer
                 e.Uploader = entry.Uploader;
                 e.Pages = entry.Pages;
                 e.Url = entry.Url;
+                e.Height = entry.PreviewHeight / entry.PreviewWidth * e.Width;
                 Entries.Add(e);
                 _ = LoadPreview(hc, entry, e);
             }

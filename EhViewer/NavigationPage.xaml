@@ -11,8 +11,13 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Frame x:Name="MyFrame">
+        <Frame.ContentTransitions>
+            <TransitionCollection>
+                <NavigationThemeTransition/>
+            </TransitionCollection>
+        </Frame.ContentTransitions>
         <GridView x:Name="NavigationGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <GridViewItem x:Name="ToSearch" Padding="17" Tag="Search">
+            <GridViewItem x:Name="ToSearch" Padding="17" Tag="Search" Width="160">
                 <Grid Width="auto" Height="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -23,10 +28,10 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <SymbolIcon Symbol="Find" Grid.Column="0"/>
-                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">搜索</TextBlock>
+                        <SymbolIcon Symbol="Go" Grid.Column="0"/>
+                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">开始</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">从网上整点本子</TextBlock>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">搜索/浏览或阅读</TextBlock>
                 </Grid>
             </GridViewItem>
             <GridViewItem x:Name="ToFile" Padding="17" Tag="File">
@@ -43,7 +48,7 @@
                         <SymbolIcon Symbol="OpenFile" Grid.Column="0"/>
                         <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">文件</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">看点自己的私藏货</TextBlock>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">打开本地漫画</TextBlock>
                 </Grid>
             </GridViewItem>
             <GridViewItem x:Name="ToSetting" Padding="17" Tag="Setting">
@@ -60,7 +65,7 @@
                         <SymbolIcon Symbol="Setting" Grid.Column="0"/>
                         <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">设置</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">调教EhViewer</TextBlock>
+                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">调整行为和样式</TextBlock>
                 </Grid>
             </GridViewItem>
         </GridView>

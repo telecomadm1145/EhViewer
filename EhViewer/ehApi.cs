@@ -33,6 +33,8 @@ namespace EhViewer
             public int Pages { get; set; }
             public string Url { get; set; }
             public string PreviewUrl { get; set; }
+            public double PreviewHeight { get; set; }
+            public double PreviewWidth { get; set; }
         }
         public struct SearchResult
         {
@@ -112,8 +114,23 @@ namespace EhViewer
                 query = item.SelectSingleNode(".//td[2]//div[2]//div[1]//img");
                 if (query == null)
                     continue;
+                style = query.GetAttributeValue("style", "");
+                match = Regex.Match(style, "height:(-?\\d+)px");
+                if (match.Success)
+                {
+                    double a = 0;
+                    double.TryParse(match.Groups[1].Value, out a);
+                    se.PreviewHeight = a;
+                }
+                match = Regex.Match(style, "width:(-?\\d+)px");
+                if (match.Success)
+                {
+                    double a = 0;
+                    double.TryParse(match.Groups[1].Value, out a);
+                    se.PreviewWidth = a;
+                }
                 se.PreviewUrl = query.GetAttributeValue("data-src", "");
-                if(string.IsNullOrWhiteSpace(se.PreviewUrl))
+                if (string.IsNullOrWhiteSpace(se.PreviewUrl))
                     se.PreviewUrl = query.GetAttributeValue("src", "");
                 res.Entries.Add(se);
             }
