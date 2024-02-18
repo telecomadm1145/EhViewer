@@ -48,7 +48,7 @@ namespace EhViewer
         }
 
         public static readonly DependencyProperty AtBottomProperty =
-    DependencyProperty.RegisterAttached("AtBottom", typeof(bool), typeof(SearchHelper), new PropertyMetadata(false));
+    DependencyProperty.RegisterAttached("AtBottom", typeof(bool), typeof(InfiniteLoading), new PropertyMetadata(false));
         private static void A_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
         {
             var sv = sender as ScrollViewer;

@@ -16,6 +16,8 @@ using System.Collections.ObjectModel;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Net.Http;
 using System.IO;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Core;
 
 namespace EhViewer
 {
@@ -52,7 +54,7 @@ namespace EhViewer
                 {
                     Loading = true;
                     Entries.Clear();
-                    var u = "https://e-hentai.org/?f_search=" + Uri.EscapeDataString(s);
+                    var u = $"https://e-hentai.org/?f_cats={Categories}&f_search={Uri.EscapeDataString(s)}";
                     await Load(u);
                     Error = false;
                 }
@@ -99,7 +101,11 @@ namespace EhViewer
             await bi.SetSourceAsync(ms.AsRandomAccessStream());
             e.Preview = bi;
         }
-
+        public int Categories { get; set; }
+        public ICommand CheckCategory => new RelayCommand((object? i) =>
+        {
+            Categories ^= int.Parse((string)i);
+        });
         public ICommand InfiniteLoad => new RelayCommand(async (object? url) =>
         {
             if (string.IsNullOrEmpty(NextUrl))
@@ -116,7 +122,7 @@ namespace EhViewer
             {
                 Error = true;
             }
-            finally 
+            finally
             {
                 Loading = false;
             }
@@ -145,12 +151,17 @@ namespace EhViewer
         {
             if (url is string s)
             {
-                TabView rootFrame = Window.Current.Content as TabView;
-                rootFrame.TabItems.Add(new TabViewItem()
+                MainWindow rootFrame = Window.Current.Content as MainWindow;
+                ViewerViewModel vvm = new ViewerViewModel(eh, s);
+                var item = new TabViewItem()
                 {
-                    Header = "漫画",
-                    Content = new ComicViewer(new ViewerViewModel(eh, s)),
-                });
+                    Content = new ComicViewer(vvm),
+                };
+                Binding bd = new();
+                bd.Source = vvm;
+                bd.Path = new("RawTitle");
+                item.SetBinding(TabViewItem.HeaderProperty, bd);
+                rootFrame.NewTab(item);
             }
         });
     }

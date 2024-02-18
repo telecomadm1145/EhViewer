@@ -17,7 +17,7 @@
             </TransitionCollection>
         </Frame.ContentTransitions>
         <GridView x:Name="NavigationGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <GridViewItem x:Name="ToSearch" Padding="17" Tag="Search" Width="160">
+            <GridViewItem x:Name="ToSearch" Padding="17" Tag="Search" Width="180">
                 <Grid Width="auto" Height="auto" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -29,9 +29,9 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <SymbolIcon Symbol="Go" Grid.Column="0"/>
-                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">开始</TextBlock>
+                        <TextBlock x:Uid="StartBtnLabel" Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">开始</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">搜索/浏览或阅读</TextBlock>
+                    <TextBlock x:Uid="StartBtnDesc" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">搜索/浏览或阅读</TextBlock>
                 </Grid>
             </GridViewItem>
             <GridViewItem x:Name="ToFile" Padding="17" Tag="File">
@@ -46,9 +46,9 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <SymbolIcon Symbol="OpenFile" Grid.Column="0"/>
-                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">文件</TextBlock>
+                        <TextBlock x:Uid="OpenBtnLabel" Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">文件</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">打开本地漫画</TextBlock>
+                    <TextBlock x:Uid="OpenBtnDesc" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">打开本地漫画</TextBlock>
                 </Grid>
             </GridViewItem>
             <GridViewItem x:Name="ToSetting" Padding="17" Tag="Setting">
@@ -63,9 +63,9 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <SymbolIcon Symbol="Setting" Grid.Column="0"/>
-                        <TextBlock Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">设置</TextBlock>
+                        <TextBlock x:Uid="SettingsBtnLabel" Margin="10,0,0,0" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" Grid.Column="1">设置</TextBlock>
                     </Grid>
-                    <TextBlock Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">调整行为和样式</TextBlock>
+                    <TextBlock x:Uid="SettingsBtnDesc" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" Grid.Row="1">调整行为和样式</TextBlock>
                 </Grid>
             </GridViewItem>
         </GridView>

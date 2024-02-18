@@ -7,6 +7,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -22,7 +24,7 @@ namespace EhViewer
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
-    public sealed partial class MainWindow : TabView
+    public sealed partial class MainWindow : Page
     {
         public MainWindow()
         {
@@ -30,9 +32,10 @@ namespace EhViewer
             var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
             coreTitleBar.ExtendViewIntoTitleBar = true;
             coreTitleBar.LayoutMetricsChanged += CoreTitleBar_LayoutMetricsChanged;
-
             Window.Current.SetTitleBar(CustomDragRegion);
-
+            var titlebar = ApplicationView.GetForCurrentView().TitleBar;
+            titlebar.BackgroundColor = Color.FromArgb(0,0,0,0);
+            titlebar.ButtonBackgroundColor = Color.FromArgb(0, 0, 0, 0);
             
         }
         private void CoreTitleBar_LayoutMetricsChanged(CoreApplicationViewTitleBar sender, object args)
@@ -58,7 +61,8 @@ namespace EhViewer
             //Frame nav = new();
             //nav.Navigate(typeof(NavigationPage), nav);
             tvi.Content = new MainPage();
-            TabItems.Add(tvi);
+            TabView.TabItems.Add(tvi);
+            TabView.SelectedItem = tvi;
         }
 
         private void TabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
@@ -68,6 +72,11 @@ namespace EhViewer
                 c.Close();
             }
             sender.TabItems.Remove(args.Tab);
+        }
+        public void NewTab(TabViewItem tvi)
+        {
+            TabView.TabItems.Add(tvi);
+            TabView.SelectedItem = tvi;
         }
     }
 }

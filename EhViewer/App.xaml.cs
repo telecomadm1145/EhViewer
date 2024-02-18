@@ -44,37 +44,10 @@ namespace EhViewer
         /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            MainWindow rootFrame = Window.Current.Content as MainWindow;            
-
-            // 不要在窗口已包含内容时重复应用程序初始化，
-            // 只需确保窗口处于活动状态
-            if (rootFrame == null)
-            {
-                // 创建要充当导航上下文的框架，并导航到第一页
-                rootFrame = new MainWindow();
-
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                    //TODO: 从之前挂起的应用程序加载状态
-                }
-
-                // 将框架放在当前窗口中
-                Window.Current.Content = rootFrame;
-            }
+            Window.Current.Content = new MainWindow();
 
             if (e.PrelaunchActivated == false)
             {
-                if (rootFrame.TabItems.Count == 0)
-                {
-                    TabViewItem tvi = new();
-                    tvi.Header = "首页";
-                    //Frame nav = new();
-                    //nav.Navigate(typeof(NavigationPage),nav);
-                    tvi.Content = new NavigationPage();
-                    tvi.IsClosable = false;
-                    rootFrame.TabItems.Add(tvi);
-                }
-                // 确保当前窗口处于活动状态
                 Window.Current.Activate();
             }
         }

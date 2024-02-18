@@ -33,7 +33,7 @@ namespace EhViewer
         public ImageSource? Cover { get; set; }
         public int RatingCount { get; set; }
         public string Publisher { get; set; }
-        public Dictionary<string,List<string>> Tags { get; set; }
+        public Dictionary<string, List<string>> Tags { get; set; }
 
         [AddINotifyPropertyChangedInterface]
         public class ViewerImage
@@ -114,7 +114,7 @@ namespace EhViewer
                 var info = await api.GetGalleryInfo(url);
                 Details = info.Details;
                 Title = info.Title;
-                RawTitle = info.RawTitle;
+                RawTitle = string.IsNullOrWhiteSpace(info.RawTitle) ? info.Title : info.RawTitle;
                 Rating = info.Rating;
                 RatingCount = info.RateCount;
                 Tags = info.Tags;
@@ -142,7 +142,8 @@ namespace EhViewer
                     var tsk = Download(limit, img, _cancellationTokenSource.Token);
                     if (!is_cover_pushed)
                     {
-                        _ = tsk.ContinueWith((t) => {
+                        _ = tsk.ContinueWith((t) =>
+                        {
                             Cover = img.Source;
                         }, TaskScheduler.FromCurrentSynchronizationContext());
                         is_cover_pushed = true;
@@ -239,7 +240,7 @@ namespace EhViewer
         public Visibility OverlayOpened { get; set; } = Visibility.Collapsed;
         public ICommand Next => new RelayCommand((object? arg) =>
         {
-            if (Index < GalleryImages.Count)
+            if (Index + 1 < GalleryImages.Count)
             {
                 Index++;
                 Current = GalleryImages[Index];
