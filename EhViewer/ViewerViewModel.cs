@@ -10,10 +10,12 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -149,7 +151,7 @@ namespace EhViewer
                         is_cover_pushed = true;
                     }
                     downloadTasks.Add(tsk);
-                    await Task.Delay(1000, _cancellationTokenSource.Token);
+                    // await Task.Delay(1000, _cancellationTokenSource.Token);
                 }
                 TaskCompletionSource<bool> tcs = new();
                 _ = Task.WhenAll(downloadTasks).ContinueWith((t) =>
@@ -185,7 +187,7 @@ namespace EhViewer
                 {
                     cancel.ThrowIfCancellationRequested();
                     Debug.WriteLine($"[{id}]Failed...retrying...");
-                    await Task.Delay(9000);
+                    await Task.Delay(4000);
                     goto redo;
                 }
                 Debug.WriteLine($"[{id}]Downloaded {imageUrl}!");
@@ -264,11 +266,25 @@ namespace EhViewer
         });
         public ICommand Prev => new RelayCommand((object? arg) =>
         {
-            if (Index >= 0)
+            if (Index > 0)
             {
                 Index--;
                 Current = GalleryImages[Index];
             }
+        });
+
+        public ICommand CopyCurrent => new RelayCommand((object? arg) =>
+        {
+            DataPackage dp = new();
+            // dp.SetText(GalleryImages[Index].Title);
+            var mm = new MemoryStream(GalleryImages[Index].FullImgData);
+            mm.Seek(0, SeekOrigin.Begin);
+            dp.SetBitmap(RandomAccessStreamReference.CreateFromStream(mm.AsRandomAccessStream()));
+            Clipboard.SetContent(dp);
+        });
+        public ICommand OpenInBrowser => new RelayCommand(async (object? arg) =>
+        {
+            await Launcher.LaunchUriAsync(new Uri(GalleryImages[Index].PageUrl));
         });
     }
 }

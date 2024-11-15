@@ -22,8 +22,6 @@ namespace EhViewer
         {
             obj.SetValue(CommandProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.RegisterAttached("Command", typeof(ICommand), typeof(SearchHelper), new PropertyMetadata(null, (d, e) =>
             {
@@ -38,6 +36,41 @@ namespace EhViewer
                     }
             }));
 
+
+        public static ICommand GetUpdateSuggestionCommand(DependencyObject obj)
+        {
+            return (ICommand)obj.GetValue(UpdateSuggestionCommandProperty);
+        }
+
+        public static void SetUpdateSuggestionCommand(DependencyObject obj, ICommand value)
+        {
+            obj.SetValue(UpdateSuggestionCommandProperty, value);
+        }
+
+        public static readonly DependencyProperty UpdateSuggestionCommandProperty =
+            DependencyProperty.RegisterAttached("UpdateSuggestionCommand", typeof(ICommand), typeof(SearchHelper), new PropertyMetadata(null, (d, e) =>
+            {
+                if (d is AutoSuggestBox a)
+                    if (e.NewValue != null)
+                    {
+                        a.TextChanged += A_UpdateSuggestionCommand;
+                    }
+                    else
+                    {
+                        a.TextChanged -= A_UpdateSuggestionCommand;
+                    }
+            }));
+        private static void A_UpdateSuggestionCommand(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            var cmd = GetUpdateSuggestionCommand(sender);
+            if (cmd != null)
+            {
+                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+                {
+                    cmd.Execute(sender);
+                }
+            }
+        }
         private static void A_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             var cmd = GetCommand(sender);

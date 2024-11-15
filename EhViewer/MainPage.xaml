@@ -13,7 +13,7 @@
         <local:MainViewModel/>
     </Page.DataContext>
     <Grid Name="root">
-        <ScrollViewer local:InfiniteLoading.Command="{Binding InfiniteLoad}" VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer local:InfiniteLoading.Command="{Binding InfiniteLoad}" VerticalScrollBarVisibility="Visible">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
@@ -24,7 +24,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel Width="800" Spacing="10">
                     <AutoSuggestBox Name="QueryContent" Margin="5" PlaceholderText="输入标签/关键字..."
-                                QueryIcon="Find" local:SearchHelper.Command="{Binding Search}" QuerySubmitted="QueryContent_QuerySubmitted"/>
+                                QueryIcon="Find" local:SearchHelper.Command="{Binding Search}" local:SearchHelper.UpdateSuggestionCommand="{Binding SearchSuggest}" />
                     <muxc:Expander HorizontalAlignment="Stretch" Header="高级设置" Width="700" IsExpanded="True">
                         <StackPanel Spacing="10">
                             <StackPanel Orientation="Horizontal" Spacing="30">

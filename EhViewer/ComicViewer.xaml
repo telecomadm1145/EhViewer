@@ -25,16 +25,21 @@
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Grid Margin="25" VerticalAlignment="Center" MaxWidth="600">
-                        <Border CornerRadius="10">
+                        <Button CornerRadius="10" Command="{Binding OpenGalleryView}">
                             <Image Source="{Binding Cover}" Stretch="Uniform"/>
-                        </Border>
+                        </Button>
                     </Grid>
                 </Grid>
                 <Grid Grid.Column="1">
-                    <StackPanel Margin="35,35,30,0">
-                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="30" ToolTipService.ToolTip="{Binding RawTitle}"/>
-                        <Grid Height="20"/>
-                        <StackPanel Orientation="Horizontal">
+                    <Grid VerticalAlignment="Stretch" RowSpacing="20" Margin="30">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="{Binding Title}" TextWrapping="Wrap" FontSize="30" ToolTipService.ToolTip="{Binding RawTitle}"/>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
                             <TextBlock FontSize="15" Margin="0,3,0,0">
                         上传者: <Run Text="{Binding Publisher}" FontWeight="Bold"/>
                             </TextBlock>
@@ -46,8 +51,7 @@
                                 </TextBlock>
                             </StackPanel>
                         </StackPanel>
-                        <Grid Height="20"/>
-                        <Border Height="300" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">
+                        <Border Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">
                             <ScrollViewer>
                                 <ItemsControl ItemsSource="{Binding Tags}" Margin="10">
                                     <ItemsControl.ItemsPanel>
@@ -81,8 +85,7 @@
                                 </ItemsControl>
                             </ScrollViewer>
                         </Border>
-                        <Grid Height="20"/>
-                        <ItemsControl ItemsSource="{Binding Details}">
+                        <ItemsControl Grid.Row="3" ItemsSource="{Binding Details}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapGrid MaximumRowsOrColumns="2" Orientation="Horizontal"/>
@@ -101,7 +104,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
+                    </Grid>
                 </Grid>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,10" Spacing="10">
                     <Button HorizontalAlignment="Right" Content="保存图集"
@@ -153,8 +156,16 @@
                         </Setter.Value>
                     </Setter>
                 </Style>
+                <MenuFlyout x:Key="Flyout_A">
+                    <MenuFlyoutItem Text="复制(此图像)" Command="{Binding CopyCurrent}"/>
+                    <MenuFlyoutItem Text="上一页" Command="{Binding Prev}"/>
+                    <MenuFlyoutItem Text="下一页" Command="{Binding Next}"/>
+                    <MenuFlyoutItem Text="返回" Command="{Binding CloseGalleryView}"/>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="在浏览器中打开" Command="{Binding OpenInBrowser}"/>
+                </MenuFlyout>
             </Grid.Resources>
-            <Button Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Close}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Button ContextFlyout="{StaticResource Flyout_A}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Close}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Escape"/>
                 </Button.KeyboardAccelerators>
@@ -166,13 +177,13 @@
                                 <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
-                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Prev}">
+                            <Button ContextFlyout="{StaticResource Flyout_A}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Command="{Binding Prev}">
                                 <Button.KeyboardAccelerators>
                                     <KeyboardAccelerator Key="A"/>
                                     <KeyboardAccelerator Key="Left"/>
                                 </Button.KeyboardAccelerators>
                             </Button>
-                            <Button HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Grid.Column="1" Command="{Binding Next}">
+                            <Button ContextFlyout="{StaticResource Flyout_A}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#01000000" BorderBrush="{x:Null}" BorderThickness="0" Grid.Column="1" Command="{Binding Next}">
                                 <Button.KeyboardAccelerators>
                                     <KeyboardAccelerator Key="D"/>
                                     <KeyboardAccelerator Key="Space"/>

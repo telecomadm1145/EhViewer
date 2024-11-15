@@ -68,6 +68,10 @@ namespace EhViewer
                 }
             }
         });
+        public ICommand SearchSuggest => new RelayCommand((object ? a)=>{
+            var b = (AutoSuggestBox)a;
+            
+            });
 
         private async Task Load(string u)
         {

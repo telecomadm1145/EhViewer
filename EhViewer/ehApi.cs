@@ -301,14 +301,14 @@ namespace EhViewer
                     // margin:1px auto 0; width:100px; height:144px; background:transparent url(https://example.com/path/to/atlas) -100px 0 no-repeat
                     var style = div.GetAttributeValue("style", "");
                     var match = Regex.Match(style,
-                                            @"width:(\d+px); height:(\d+px); background:transparent url\((.+?)\) (-?\d+(px)?) (-?\d+(px)?)");
+                                            @"width:(\d+px);(\s)?height:(\d+px);(\s)?background:transparent url\((.+?)\) (-?\d+(px)?) (-?\d+(px)?) .+");
                     if (match.Success)
                     {
                         var width = int.Parse(match.Groups[1].Value.Replace("px", ""));
-                        var height = int.Parse(match.Groups[2].Value.Replace("px", ""));
-                        var imageUrl = match.Groups[3].Value;
-                        var xOffset = int.Parse(match.Groups[4].Value.Replace("px", ""));
-                        var yOffset = int.Parse(match.Groups[6].Value.Replace("px", ""));
+                        var height = int.Parse(match.Groups[2+1].Value.Replace("px", ""));
+                        var imageUrl = match.Groups[3+2].Value;
+                        var xOffset = int.Parse(match.Groups[4+2].Value.Replace("px", ""));
+                        var yOffset = int.Parse(match.Groups[6+2].Value.Replace("px", ""));
 
                         xOffset = xOffset < 0 ? -xOffset : xOffset;
                         yOffset = yOffset < 0 ? -yOffset : yOffset;
@@ -324,15 +324,15 @@ namespace EhViewer
                         }
                         gi.Preview = await LoadCroppedImage(atlas, new BitmapBounds { X = (uint)xOffset, Y = (uint)yOffset, Width = (uint)(width - 1), Height = (uint)(height - 1) });
                     }
-                    div = div.FirstChild;
+                    // div = div.FirstChild;
                 }
                 else
                 {
                     // Large mode(single image)
                     gi.Preview = new BitmapImage(new Uri(div.FirstChild.GetAttributes().First(x => x.Name == "src").Value));
                 }
-                gi.PageUrl = div.GetAttributes().First(x => x.Name == "href").Value;
-                gi.Title = div.FirstChild.GetAttributes().First(x => x.Name == "title").Value;
+                gi.PageUrl = item.GetAttributes().First(x => x.Name == "href").Value;
+                gi.Title = item.FirstChild.GetAttributes().First(x => x.Name == "title").Value;
                 yield return gi;
             }
         }
