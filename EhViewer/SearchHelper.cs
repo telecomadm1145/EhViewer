@@ -74,7 +74,7 @@ namespace EhViewer
         private static void A_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             var cmd = GetCommand(sender);
-            if (cmd != null)
+            if (cmd != null && args.ChosenSuggestion == null)
             {
                 if (cmd.CanExecute(args.QueryText))
                 {

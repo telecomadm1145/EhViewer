@@ -100,10 +100,11 @@ namespace EhViewer
         {
             // 留给previewer
         }
-        public ViewerViewModel(EhApi api, string url)
+        public ViewerViewModel(EhApi api,ImageSource initalPreview, string url)
         {
             this.api = api;
             _ = Load(url);
+            Cover = initalPreview;
         }
         public void Cancel()
         {
@@ -111,6 +112,7 @@ namespace EhViewer
         }
         public async Task Load(string url)
         {
+            bool i = false;
             try
             {
                 var info = await api.GetGalleryInfo(url);
@@ -124,7 +126,11 @@ namespace EhViewer
 
                 await foreach (var img in api.GetImages(url))
                 {
-                    Cover ??= img.Preview;
+                    if (!i)
+                    {
+                        Cover = img.Preview;
+                        i = true;
+                    }
                     ViewerImage vi = new()
                     {
                         PageUrl = img.PageUrl,
@@ -175,23 +181,46 @@ namespace EhViewer
             {
                 await l.Enter();
                 img.Loading = false;
-                Debug.WriteLine($"[{id}]Gathering {img.PageUrl}...");
-                var imageUrl = await api.GatherImageLink(img.PageUrl);
-                Debug.WriteLine($"[{id}]Downloading {imageUrl}...");
-            redo:
-                try
+                byte[] cache = null;
+                cache = await CachingService.Instance.GetFromCache("Image!!" + new Uri(img.PageUrl).AbsolutePath);
+                if (cache != null)
                 {
-                    await DownloadImageAsync(imageUrl, cancel, img);
+                    img.Progress = 100;
+                    img.FullImgData = cache;
+                    var image = new BitmapImage();
+                    var pv = new BitmapImage();
+                    pv.DecodePixelWidth = 200;
+                    using (var stream = new MemoryStream(cache))
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        await image.SetSourceAsync(stream.AsRandomAccessStream());
+                        stream.Seek(0, SeekOrigin.Begin);
+                        await pv.SetSourceAsync(stream.AsRandomAccessStream());
+                    }
+                    img.Preview = pv;
+                    img.Source = image;
                 }
-                catch
+                else
                 {
-                    cancel.ThrowIfCancellationRequested();
-                    Debug.WriteLine($"[{id}]Failed...retrying...");
-                    await Task.Delay(4000);
-                    goto redo;
+                    Debug.WriteLine($"[{id}]Gathering {img.PageUrl}...");
+                    var imageUrl = await api.GatherImageLink(img.PageUrl);
+                    Debug.WriteLine($"[{id}]Downloading {imageUrl}...");
+                redo:
+                    try
+                    {
+                        await DownloadImageAsync(imageUrl, cancel, img);
+                    }
+                    catch
+                    {
+                        cancel.ThrowIfCancellationRequested();
+                        Debug.WriteLine($"[{id}]Failed...retrying...");
+                        await Task.Delay(4000);
+                        goto redo;
+                    }
+                    _ = CachingService.Instance.SaveToCache("Image!!" + new Uri(img.PageUrl).AbsolutePath, img.FullImgData);
+                    Debug.WriteLine($"[{id}]Downloaded {imageUrl}!");
+                    img.Progress = 100;
                 }
-                Debug.WriteLine($"[{id}]Downloaded {imageUrl}!");
-                img.Progress = 100;
                 RawProgress++;
                 Progress = (double)RawProgress / GalleryImages.Count * 100;
             }

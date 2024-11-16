@@ -48,6 +48,7 @@ namespace EhViewer
 
             if (e.PrelaunchActivated == false)
             {
+                _ = EhTagTranslation.Instance.Update();
                 Window.Current.Activate();
             }
         }

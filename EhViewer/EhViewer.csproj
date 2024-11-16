@@ -127,7 +127,7 @@
     <Compile Include="EhApi.cs" />
     <Compile Include="EhTranslationDatabase.cs" />
     <Compile Include="ICloseable.cs" />
-    <Compile Include="ImageCachingService.cs" />
+    <Compile Include="CachingService.cs" />
     <Compile Include="InfiniteLoading.cs" />
     <Compile Include="Limit.cs" />
     <Compile Include="MainPage.xaml.cs">

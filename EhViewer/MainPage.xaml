@@ -24,7 +24,21 @@
                 </Grid.RowDefinitions>
                 <StackPanel Width="800" Spacing="10">
                     <AutoSuggestBox Name="QueryContent" Margin="5" PlaceholderText="输入标签/关键字..."
-                                QueryIcon="Find" local:SearchHelper.Command="{Binding Search}" local:SearchHelper.UpdateSuggestionCommand="{Binding SearchSuggest}" />
+                                QueryIcon="Find" local:SearchHelper.Command="{Binding Search}" local:SearchHelper.UpdateSuggestionCommand="{Binding SearchSuggest}"
+                                    ItemsSource="{Binding Suggestions}">
+                        <AutoSuggestBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="{Binding ElementName=QueryContent,Path=ActualWidth}" ToolTipService.ToolTip="{Binding Description}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding DisplayText}"/>
+                                    <TextBlock Grid.Column="1" Foreground="Gray" FontSize="12" Text="{Binding Raw}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </AutoSuggestBox.ItemTemplate>
+                    </AutoSuggestBox>
                     <muxc:Expander HorizontalAlignment="Stretch" Header="高级设置" Width="700" IsExpanded="True">
                         <StackPanel Spacing="10">
                             <StackPanel Orientation="Horizontal" Spacing="30">
@@ -101,7 +115,7 @@
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
-                                                    <Button Grid.Row="2" HorizontalAlignment="Right" Content="阅读" x:Uid="ViewBtn" Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding Url}"/>
+                                                    <Button Grid.Row="2" HorizontalAlignment="Right" Content="阅读" x:Uid="ViewBtn" Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding}"/>
                                                     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Grid.Row="3">
                                                         <muxc:RatingControl IsReadOnly="True" Value="{Binding Rating}" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                                                         <TextBlock Text="{Binding PublishTime}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
