@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -66,7 +67,7 @@ namespace EhViewer
             var hc = new HttpClient();
             if (await CachingService.Instance.GetFromCache("EhTagTranslation!Data") == null)
             {
-                var resp = await hc.GetAsync($"https://github.com/EhTagTranslation/Database/releases/download/v6.10949.1/db.full.json");
+                var resp = await hc.GetAsync($"https://github.com/EhTagTranslation/Database/releases/latest/download/db.full.json");
                 resp.EnsureSuccessStatusCode();
                 var tags = await resp.Content.ReadAsByteArrayAsync();
                 await CachingService.Instance.SaveToCache("EhTagTranslation!Data", tags);

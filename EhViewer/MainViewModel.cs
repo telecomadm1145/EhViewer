@@ -23,6 +23,11 @@ using Windows.UI.Xaml.Input;
 using static EhViewer.MainViewModel;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
+using Windows.UI.Xaml.Media;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Graphics.Imaging;
+using Windows.Storage.Streams;
+using Windows.Storage;
 
 namespace EhViewer
 {
@@ -408,6 +413,68 @@ namespace EhViewer
                 }
             }
         });
+        public ICommand CopyImage => new RelayCommand(async (object? img) =>
+        {
+            if (img is ImageSource imageSource)
+            {
+                var storageFile = await ConvertImageSourceToStorageFile(imageSource);
+                if (storageFile != null)
+                {
+                    var dataPackage = new DataPackage();
+                    dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromFile(storageFile));
+                    Clipboard.SetContent(dataPackage);
+                }
+            }
+        });
+
+        private async Task<StorageFile?> ConvertImageSourceToStorageFile(ImageSource imageSource)
+        {
+            try
+            {
+                if (imageSource is BitmapImage bitmapImage)
+                {
+                    // 创建临时文件
+                    var tempFile = await ApplicationData.Current.TemporaryFolder
+                        .CreateFileAsync(imageSource.GetHashCode() + DateTime.Now.Ticks + ".png", CreationCollisionOption.ReplaceExisting);
+
+                    using (var stream = await tempFile.OpenAsync(FileAccessMode.ReadWrite))
+                    {
+                        // 创建编码器
+                        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+
+                        // 如果 BitmapImage 来自 URI
+                        if (bitmapImage.UriSource != null)
+                        {
+                            var file = await StorageFile.GetFileFromApplicationUriAsync(bitmapImage.UriSource);
+                            using (var fileStream = await file.OpenAsync(FileAccessMode.Read))
+                            {
+                                var decoder = await BitmapDecoder.CreateAsync(fileStream);
+                                var pixelData = await decoder.GetPixelDataAsync();
+
+                                encoder.SetPixelData(
+                                    decoder.BitmapPixelFormat,
+                                    decoder.BitmapAlphaMode,
+                                    decoder.PixelWidth,
+                                    decoder.PixelHeight,
+                                    decoder.DpiX,
+                                    decoder.DpiY,
+                                    pixelData.DetachPixelData()
+                                );
+                            }
+                        }
+                        await encoder.FlushAsync();
+                    }
+
+                    return tempFile;
+                }
+            }
+            catch (Exception)
+            {
+                // 处理异常
+            }
+
+            return null;
+        }
         public ICommand Open => new RelayCommand((object? url) =>
         {
             if (url is Entry s)

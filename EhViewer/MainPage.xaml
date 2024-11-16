@@ -92,6 +92,14 @@
                                             </Grid>
                                         </Border>
                                     </Grid>
+                                    <Button.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="复制封面" Command="{Binding DataContext.CopyImage,ElementName=Items}" CommandParameter="{Binding Preview}"/>
+                                            <MenuFlyoutItem Text="TBD"/>
+                                            <MenuFlyoutItem Text="TBD"/>
+                                            <MenuFlyoutItem Text="TBD"/>
+                                        </MenuFlyout>
+                                    </Button.ContextFlyout>
                                     <Button.Flyout>
                                         <Flyout>
                                             <Grid Height="600" Width="400">
