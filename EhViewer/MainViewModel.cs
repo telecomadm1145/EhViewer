@@ -28,6 +28,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.Storage;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
 
 namespace EhViewer
 {
@@ -63,6 +65,7 @@ namespace EhViewer
             public int Pages { get; set; }
             public string Url { get; set; }
             public BitmapImage Preview { get; set; }
+            public byte[] PreviewData { get; set; }
             public double Height { get; set; }
             public double Width => 300;
         }
@@ -96,6 +99,8 @@ namespace EhViewer
 
         public ICommand SearchSuggest => new RelayCommand((object? a) =>
         {
+            if (EhTagTranslation.Instance == null)
+                return;
             var box = (AutoSuggestBox)a;
             var originalText = box.Text;
             var currentQuery = GetCurrentQuery(originalText);
@@ -255,7 +260,7 @@ namespace EhViewer
             if (ind != -1)
             {
                 queryNamesp = searchText.Substring(0, ind);
-                queryText = searchText.Substring(ind+1);
+                queryText = searchText.Substring(ind + 1);
             }
             else
             {
@@ -264,7 +269,8 @@ namespace EhViewer
             if (!string.IsNullOrWhiteSpace(queryNamesp))
             {
                 if (queryNamesp.ToLower() != @namespace.Info.Abbr &&
-                    queryNamesp.ToLower() != @namespace.Info.Name) {
+                    queryNamesp.ToLower() != @namespace.Info.Name)
+                {
                     return false;
                 }
             }
@@ -366,6 +372,7 @@ namespace EhViewer
             }
             await bi.SetSourceAsync(ms.AsRandomAccessStream());
             e.Preview = bi;
+            e.PreviewData = ms.GetBuffer();
         }
         public int Categories { get; set; }
         public ICommand CheckCategory => new RelayCommand((object? i) =>
@@ -415,66 +422,25 @@ namespace EhViewer
         });
         public ICommand CopyImage => new RelayCommand(async (object? img) =>
         {
-            if (img is ImageSource imageSource)
+            if (img is byte[] imageSource)
             {
-                var storageFile = await ConvertImageSourceToStorageFile(imageSource);
-                if (storageFile != null)
+                try
                 {
+                    var tempFile = await ApplicationData.Current.TemporaryFolder
+    .CreateFileAsync("temp.png", CreationCollisionOption.ReplaceExisting);
+                    var stream = await tempFile.OpenReadAsync();
+                    await stream.AsStream().WriteAsync(imageSource, 0, imageSource.Length);
                     var dataPackage = new DataPackage();
-                    dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromFile(storageFile));
+                    dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromFile(tempFile));
                     Clipboard.SetContent(dataPackage);
+                }
+                catch (Exception ex)
+                {
+                    // 处理异常，可以根据需要显示错误消息
+                    Debug.WriteLine($"Copy image failed: {ex.Message}");
                 }
             }
         });
-
-        private async Task<StorageFile?> ConvertImageSourceToStorageFile(ImageSource imageSource)
-        {
-            try
-            {
-                if (imageSource is BitmapImage bitmapImage)
-                {
-                    // 创建临时文件
-                    var tempFile = await ApplicationData.Current.TemporaryFolder
-                        .CreateFileAsync(imageSource.GetHashCode() + DateTime.Now.Ticks + ".png", CreationCollisionOption.ReplaceExisting);
-
-                    using (var stream = await tempFile.OpenAsync(FileAccessMode.ReadWrite))
-                    {
-                        // 创建编码器
-                        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-
-                        // 如果 BitmapImage 来自 URI
-                        if (bitmapImage.UriSource != null)
-                        {
-                            var file = await StorageFile.GetFileFromApplicationUriAsync(bitmapImage.UriSource);
-                            using (var fileStream = await file.OpenAsync(FileAccessMode.Read))
-                            {
-                                var decoder = await BitmapDecoder.CreateAsync(fileStream);
-                                var pixelData = await decoder.GetPixelDataAsync();
-
-                                encoder.SetPixelData(
-                                    decoder.BitmapPixelFormat,
-                                    decoder.BitmapAlphaMode,
-                                    decoder.PixelWidth,
-                                    decoder.PixelHeight,
-                                    decoder.DpiX,
-                                    decoder.DpiY,
-                                    pixelData.DetachPixelData()
-                                );
-                            }
-                        }
-                        await encoder.FlushAsync();
-                    }
-
-                    return tempFile;
-                }
-            }
-            catch (Exception)
-            {
-                // 处理异常
-            }
-
-            return null;
-        }
         public ICommand Open => new RelayCommand((object? url) =>
         {
             if (url is Entry s)
