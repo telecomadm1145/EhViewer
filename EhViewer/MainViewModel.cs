@@ -30,6 +30,8 @@ using Windows.Storage.Streams;
 using Windows.Storage;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
+using System.Reflection;
+using Windows.System;
 
 namespace EhViewer
 {
@@ -65,6 +67,7 @@ namespace EhViewer
             public int Pages { get; set; }
             public string Url { get; set; }
             public BitmapImage Preview { get; set; }
+            public string PreviewUrl { get; set; }
             public byte[] PreviewData { get; set; }
             public double Height { get; set; }
             public double Width => 300;
@@ -347,15 +350,16 @@ namespace EhViewer
                 e.Pages = entry.Pages;
                 e.Url = entry.Url;
                 e.Height = entry.PreviewHeight / entry.PreviewWidth * e.Width;
+                e.PreviewUrl = entry.PreviewUrl;
                 Entries.Add(e);
-                _ = LoadPreview(hc, entry, e);
+                _ = LoadPreview(hc, e);
             }
         }
 
-        private static async Task LoadPreview(HttpClient hc, EhApi.SearchEntry entry, Entry e)
+        private static async Task LoadPreview(HttpClient hc, Entry e)
         {
             BitmapImage bi = new();
-            var dat = await CachingService.Instance.GetFromCache("PreviewImg!!" + entry.PreviewUrl);
+            var dat = await CachingService.Instance.GetFromCache("PreviewImg!!" + e.PreviewUrl);
             MemoryStream ms;
             if (dat != null)
             {
@@ -365,14 +369,14 @@ namespace EhViewer
             else
             {
                 ms = new();
-                var stm = await hc.GetStreamAsync(entry.PreviewUrl);
+                var stm = await hc.GetStreamAsync(e.PreviewUrl);
                 await stm.CopyToAsync(ms);
                 ms.Seek(0, SeekOrigin.Begin);
-                await CachingService.Instance.SaveToCache("PreviewImg!!" + entry.PreviewUrl, ms.GetBuffer());
+                await CachingService.Instance.SaveToCache("PreviewImg!!" + e.PreviewUrl, ms.GetBuffer());
             }
             await bi.SetSourceAsync(ms.AsRandomAccessStream());
             e.Preview = bi;
-            e.PreviewData = ms.GetBuffer();
+            e.PreviewData = ms.ToArray();
         }
         public int Categories { get; set; }
         public ICommand CheckCategory => new RelayCommand((object? i) =>
@@ -422,23 +426,42 @@ namespace EhViewer
         });
         public ICommand CopyImage => new RelayCommand(async (object? img) =>
         {
-            if (img is byte[] imageSource)
+            if (img is Entry entry)
             {
                 try
                 {
                     var tempFile = await ApplicationData.Current.TemporaryFolder
-    .CreateFileAsync("temp.png", CreationCollisionOption.ReplaceExisting);
-                    var stream = await tempFile.OpenReadAsync();
-                    await stream.AsStream().WriteAsync(imageSource, 0, imageSource.Length);
+    .CreateFileAsync("CbExch", CreationCollisionOption.ReplaceExisting);
+                    var stream = await tempFile.OpenAsync(FileAccessMode.ReadWrite);
+                    await stream.AsStream().WriteAsync(entry.PreviewData, 0, entry.PreviewData.Length);
                     var dataPackage = new DataPackage();
                     dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromFile(tempFile));
                     Clipboard.SetContent(dataPackage);
+                    stream.Dispose();
                 }
                 catch (Exception ex)
                 {
                     // 处理异常，可以根据需要显示错误消息
                     Debug.WriteLine($"Copy image failed: {ex.Message}");
                 }
+            }
+        });
+        public ICommand ReloadCurrent => new RelayCommand(async (object? arg) =>
+        {
+            if (arg is Entry entry)
+            {
+                await LoadPreview(new HttpClient(), entry);
+            }
+        });
+        public ICommand OpenInBrowser => new RelayCommand(async (object? arg) =>
+        {
+            if (arg is string a)
+            {
+                await Launcher.LaunchUriAsync(new Uri(a));
+            }
+            else if (arg is Uri b)
+            {
+                await Launcher.LaunchUriAsync(b);
             }
         });
         public ICommand Open => new RelayCommand((object? url) =>

@@ -130,6 +130,9 @@
     <Compile Include="CachingService.cs" />
     <Compile Include="InfiniteLoading.cs" />
     <Compile Include="Limit.cs" />
+    <Compile Include="Locals.xaml.cs">
+      <DependentUpon>Locals.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -167,6 +170,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="ComicViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Locals.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

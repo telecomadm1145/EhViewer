@@ -59,15 +59,16 @@
                     </muxc:Expander>
                 </StackPanel>
                 <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
-                <ItemsControl Name="Items" ItemsSource="{Binding Entries}" Grid.Row="3" Margin="5"
-                               MinHeight="{Binding ElementName=root,Path=ActualHeight}" HorizontalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
+                <ListView Name="Items" ItemsSource="{Binding Entries}" Grid.Row="3" Margin="5"
+                               MinHeight="{Binding ElementName=root,Path=ActualHeight}" HorizontalAlignment="Center"
+                          SelectionMode="None">
+                    <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <controls:WrapPanel Orientation="Horizontal">
                             </controls:WrapPanel>
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid>
                                 <Button Background="#01000000" 
@@ -94,10 +95,14 @@
                                     </Grid>
                                     <Button.ContextFlyout>
                                         <MenuFlyout>
-                                            <MenuFlyoutItem Text="复制封面" Command="{Binding DataContext.CopyImage,ElementName=Items}" CommandParameter="{Binding PreviewData}"/>
-                                            <MenuFlyoutItem Text="TBD"/>
-                                            <MenuFlyoutItem Text="TBD"/>
-                                            <MenuFlyoutItem Text="TBD"/>
+                                            <MenuFlyoutItem Text="复制封面" Command="{Binding DataContext.CopyImage,ElementName=Items}"
+                                                            CommandParameter="{Binding}"/>
+                                            <MenuFlyoutItem Text="重新加载封面" Command="{Binding DataContext.ReloadCurrent,ElementName=Items}"
+                                                            CommandParameter="{Binding}"/>
+                                            <MenuFlyoutItem Text="在浏览器打开封面" Command="{Binding DataContext.OpenInBrowser,ElementName=Items}"
+                                                            CommandParameter="{Binding PreviewUrl}"/>
+                                            <MenuFlyoutItem Text="在浏览器打开" Command="{Binding DataContext.OpenInBrowser,ElementName=Items}"
+                                                            CommandParameter="{Binding Url}"/>
                                         </MenuFlyout>
                                     </Button.ContextFlyout>
                                     <Button.Flyout>
@@ -135,8 +140,8 @@
                                 </Button>
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListView.ItemTemplate>
+                </ListView>
             </Grid>
         </ScrollViewer>
         <muxc:ProgressRing IsActive="{Binding Loading}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>

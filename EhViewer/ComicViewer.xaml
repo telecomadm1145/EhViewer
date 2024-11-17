@@ -114,15 +114,15 @@
             </Grid>
         </Grid>
         <ScrollViewer Visibility="{Binding GalleryViewVisible}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid Margin="20" MaxWidth="1600">
+            <Grid Margin="20" MaxWidth="1600" HorizontalAlignment="Center">
                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5"/>
-                <ItemsControl Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10" HorizontalAlignment="Center">
-                    <ItemsControl.ItemsPanel>
+                <ListView Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10" SelectionMode="None">
+                    <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <VariableSizedWrapGrid MaximumRowsOrColumns="20" Orientation="Horizontal"/>
+                            <controls:WrapPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
                         <DataTemplate>
                             <Grid Width="250" ToolTipService.ToolTip="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Button Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding PageUrl}" Margin="5" Background="#01000000" Padding="0">
@@ -134,8 +134,8 @@
                                 </Button>
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListView.ItemTemplate>
+                </ListView>
                 <Button ToolTipService.ToolTip="X" HorizontalAlignment="Right" VerticalAlignment="Top" 
                         Command="{Binding CloseGalleryView}">
                     <SymbolIcon Symbol="Clear"/>

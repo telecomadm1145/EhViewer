@@ -60,7 +60,7 @@ namespace EhViewer
             tvi.Header = "首页";
             //Frame nav = new();
             //nav.Navigate(typeof(NavigationPage), nav);
-            tvi.Content = new MainPage();
+            tvi.Content = new NavigationPage();
             TabView.TabItems.Add(tvi);
             TabView.SelectedItem = tvi;
         }

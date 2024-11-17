@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -150,12 +151,26 @@ namespace EhViewer
         }
         public struct GalleryInfo
         {
+            [JsonPropertyName("title")]
+            [JsonInclude]
             public string Title;
+            [JsonPropertyName("raw_title")]
+            [JsonInclude]
             public string RawTitle;
+            [JsonPropertyName("tags")]
+            [JsonInclude]
             public Dictionary<string, List<string>> Tags;
+            [JsonPropertyName("details")]
+            [JsonInclude]
             public Dictionary<string, string> Details;
+            [JsonPropertyName("rating")]
+            [JsonInclude]
             public double Rating;
+            [JsonPropertyName("ratecount")]
+            [JsonInclude]
             public int RateCount;
+            [JsonPropertyName("publisher")]
+            [JsonInclude]
             public string Publisher;
         }
         public async Task<GalleryInfo> GetGalleryInfo(string catalogurl)

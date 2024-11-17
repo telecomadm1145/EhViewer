@@ -20,6 +20,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using static EhViewer.MainViewModel;
 
 namespace EhViewer
 {
@@ -112,10 +113,28 @@ namespace EhViewer
         }
         public async Task Load(string url)
         {
-            bool i = false;
+            bool offline_mode = false;
             try
             {
-                var info = await api.GetGalleryInfo(url);
+                var gi = OfflineDb.Instance.Infos.FirstOrDefault(x => new Uri(x.Url).AbsolutePath == new Uri(url).AbsolutePath);
+
+                EhApi.GalleryInfo info = default;
+                try
+                {
+                    info = await api.GetGalleryInfo(url);
+                }
+                catch
+                {
+                    offline_mode = true;
+                    if (gi == null)
+                        return;
+                    info = gi.GalleryInfo;
+                }
+
+                var ogi = new OfflineGalleryInfo();
+                ogi.Url = url;
+                ogi.GalleryInfo = info;
+
                 Details = info.Details;
                 Title = info.Title;
                 RawTitle = string.IsNullOrWhiteSpace(info.RawTitle) ? info.Title : info.RawTitle;
@@ -124,21 +143,39 @@ namespace EhViewer
                 Tags = info.Tags;
                 Publisher = info.Publisher;
 
-                await foreach (var img in api.GetImages(url))
+                try
                 {
-                    if (!i)
+                    await foreach (var img in api.GetImages(url))
                     {
-                        Cover = img.Preview;
-                        i = true;
+                        ViewerImage vi = new()
+                        {
+                            PageUrl = img.PageUrl,
+                            Title = img.Title,
+                            Preview = img.Preview,
+                            Source = img.Preview,
+                        };
+                        GalleryImages.Add(vi);
+                        ogi.Images.Add(img.PageUrl);
                     }
-                    ViewerImage vi = new()
+                }
+                catch
+                {
+                    offline_mode = true;
+                    if (gi == null)
+                        return;
+                    foreach(var img in gi.Images)
                     {
-                        PageUrl = img.PageUrl,
-                        Title = img.Title,
-                        Preview = img.Preview,
-                        Source = img.Preview,
-                    };
-                    GalleryImages.Add(vi);
+                        ViewerImage vi = new()
+                        {
+                            PageUrl = img,
+                        };
+                        GalleryImages.Add(vi);
+                    }
+                }
+                if (!offline_mode)
+                {
+                    Debug.WriteLine("Updated OfflineDb.");
+                    await OfflineDb.Instance.UpdateGalleryInfo(ogi);
                 }
                 IsLoading = false;
                 bool is_cover_pushed = false;
@@ -302,14 +339,24 @@ namespace EhViewer
             }
         });
 
-        public ICommand CopyCurrent => new RelayCommand((object? arg) =>
+        public ICommand CopyCurrent => new RelayCommand(async (object? arg) =>
         {
-            DataPackage dp = new();
-            // dp.SetText(GalleryImages[Index].Title);
-            var mm = new MemoryStream(GalleryImages[Index].FullImgData);
-            mm.Seek(0, SeekOrigin.Begin);
-            dp.SetBitmap(RandomAccessStreamReference.CreateFromStream(mm.AsRandomAccessStream()));
-            Clipboard.SetContent(dp);
+            try
+            {
+                var tempFile = await ApplicationData.Current.TemporaryFolder
+.CreateFileAsync("CbExch", CreationCollisionOption.ReplaceExisting);
+                var stream = await tempFile.OpenAsync(FileAccessMode.ReadWrite);
+                await stream.AsStream().WriteAsync(GalleryImages[Index].FullImgData, 0, GalleryImages[Index].FullImgData.Length);
+                var dataPackage = new DataPackage();
+                dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromFile(tempFile));
+                Clipboard.SetContent(dataPackage);
+                stream.Dispose();
+            }
+            catch (Exception ex)
+            {
+                // 处理异常，可以根据需要显示错误消息
+                Debug.WriteLine($"Copy image failed: {ex.Message}");
+            }
         });
         public ICommand OpenInBrowser => new RelayCommand(async (object? arg) =>
         {
