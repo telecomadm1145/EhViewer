@@ -24,6 +24,16 @@ using static EhViewer.MainViewModel;
 
 namespace EhViewer
 {
+    public static class ObservableCollectionExtensions
+    {
+        public static void AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                collection.Add(item);
+            }
+        }
+    }
     [AddINotifyPropertyChangedInterface]
     internal class ViewerViewModel
     {
@@ -36,6 +46,7 @@ namespace EhViewer
         public ImageSource? Cover { get; set; }
         public int RatingCount { get; set; }
         public string Publisher { get; set; }
+        public ObservableCollection<EhApi.GalleryInfo.Comment> Comments { get; set; } = new();
         public Dictionary<string, List<string>> Tags { get; set; }
 
         [AddINotifyPropertyChangedInterface]
@@ -95,16 +106,19 @@ namespace EhViewer
         private int RawProgress = 0;
         public double Progress { get; set; } = 0;
 
+        public string org_url { get; set; }
+
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
         public ViewerViewModel()
 #pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
         {
             // 留给previewer
         }
-        public ViewerViewModel(EhApi api,ImageSource initalPreview, string url)
+        public ViewerViewModel(EhApi api, ImageSource initalPreview, string url)
         {
             this.api = api;
             _ = Load(url);
+            org_url = url;
             Cover = initalPreview;
         }
         public void Cancel()
@@ -116,16 +130,30 @@ namespace EhViewer
             bool offline_mode = false;
             try
             {
+                await OfflineDb.Instance.Load();
                 var gi = OfflineDb.Instance.Infos.FirstOrDefault(x => new Uri(x.Url).AbsolutePath == new Uri(url).AbsolutePath);
 
                 EhApi.GalleryInfo info = default;
-                try
-                {
-                    info = await api.GetGalleryInfo(url);
-                }
-                catch
+                if (OfflineDb.Instance.OfflineMode)
                 {
                     offline_mode = true;
+                }
+                if (!offline_mode)
+                {
+                    try
+                    {
+                        info = await api.GetGalleryInfo(url);
+                    }
+                    catch
+                    {
+                        offline_mode = true;
+                        if (gi == null)
+                            return;
+                        info = gi.GalleryInfo;
+                    }
+                }
+                else
+                {
                     if (gi == null)
                         return;
                     info = gi.GalleryInfo;
@@ -142,28 +170,44 @@ namespace EhViewer
                 RatingCount = info.RateCount;
                 Tags = info.Tags;
                 Publisher = info.Publisher;
-
-                try
+                Comments.AddRange(info.comments);
+                if (!offline_mode)
                 {
-                    await foreach (var img in api.GetImages(url))
+                    try
                     {
-                        ViewerImage vi = new()
+                        await foreach (var img in api.GetImages(url))
                         {
-                            PageUrl = img.PageUrl,
-                            Title = img.Title,
-                            Preview = img.Preview,
-                            Source = img.Preview,
-                        };
-                        GalleryImages.Add(vi);
-                        ogi.Images.Add(img.PageUrl);
+                            ViewerImage vi = new()
+                            {
+                                PageUrl = img.PageUrl,
+                                Title = img.Title,
+                                Preview = img.Preview,
+                                Source = img.Preview,
+                            };
+                            GalleryImages.Add(vi);
+                            ogi.Images.Add(img.PageUrl);
+                        }
+                    }
+                    catch
+                    {
+                        offline_mode = true;
+                        if (gi == null)
+                            return;
+                        foreach (var img in gi.Images.Reverse<string>())
+                        {
+                            ViewerImage vi = new()
+                            {
+                                PageUrl = img,
+                            };
+                            GalleryImages.Add(vi);
+                        }
                     }
                 }
-                catch
+                else
                 {
-                    offline_mode = true;
                     if (gi == null)
                         return;
-                    foreach(var img in gi.Images)
+                    foreach (var img in gi.Images.Reverse<string>())
                     {
                         ViewerImage vi = new()
                         {
@@ -180,7 +224,7 @@ namespace EhViewer
                 IsLoading = false;
                 bool is_cover_pushed = false;
                 List<Task> downloadTasks = new();
-                Limit limit = new(5);
+                Limit limit = Limit.g_limit;
                 foreach (var img in GalleryImages) // this starts the download progress
                 {
                     _cancellationTokenSource.Token.ThrowIfCancellationRequested();
@@ -358,9 +402,22 @@ namespace EhViewer
                 Debug.WriteLine($"Copy image failed: {ex.Message}");
             }
         });
+
+
+        public ICommand CopyLink => new RelayCommand((object? _) =>
+        {
+            var dp = new DataPackage();
+            dp.SetText(org_url);
+            Clipboard.SetContent(dp);
+        });
+        public ICommand ShareLink => new RelayCommand((object? _) =>
+        {
+
+        });
         public ICommand OpenInBrowser => new RelayCommand(async (object? arg) =>
         {
             await Launcher.LaunchUriAsync(new Uri(GalleryImages[Index].PageUrl));
         });
+
     }
 }

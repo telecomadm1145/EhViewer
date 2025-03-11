@@ -14,7 +14,7 @@ namespace EhViewer
         {
             while (Value >= Max)
             {
-                await Task.Delay(20);
+                await Task.Delay(1);
             }
         }
         public async Task Enter()
@@ -26,5 +26,6 @@ namespace EhViewer
         {
             Value--;
         }
+        public static Limit g_limit = new(5);
     }
 }

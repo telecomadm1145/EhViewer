@@ -11,108 +11,154 @@
     <d:Page.DataContext>
         <local:ViewerViewModel/>
     </d:Page.DataContext>
-    <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="100"/>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" MaxWidth="600"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+    <Grid Name="Root2">
+        <ScrollViewer>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
                 <Grid>
-                    <Grid Margin="25" VerticalAlignment="Center" MaxWidth="600">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" MaxWidth="600"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Margin="25" VerticalAlignment="Center" MaxWidth="400">
                         <Button CornerRadius="10" Command="{Binding OpenGalleryView}">
+                            <Button.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="复制链接" Command="{Binding CopyLink}"/>
+                                    <MenuFlyoutItem Text="分享" Command="{Binding ShareLink}"/>
+                                    <MenuFlyoutItem Text="保存图集" Command="{Binding Save}" Visibility="{Binding ShowSaveButton}"/>
+                                </MenuFlyout>
+                            </Button.ContextFlyout>
                             <Image Source="{Binding Cover}" Stretch="Uniform"/>
                         </Button>
                     </Grid>
-                </Grid>
-                <Grid Grid.Column="1">
-                    <Grid VerticalAlignment="Stretch" RowSpacing="20" Margin="30">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="{Binding Title}" TextWrapping="Wrap" FontSize="30" ToolTipService.ToolTip="{Binding RawTitle}"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <TextBlock FontSize="15" Margin="0,3,0,0">
+                    <Grid Grid.Column="1">
+                        <Grid VerticalAlignment="Stretch" RowSpacing="20" Margin="30">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding Title}" TextWrapping="Wrap" FontSize="30" ToolTipService.ToolTip="{Binding RawTitle}"/>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                <TextBlock FontSize="15" Margin="0,3,0,0">
                         上传者: <Run Text="{Binding Publisher}" FontWeight="Bold"/>
-                            </TextBlock>
-                            <Grid Width="20"/>
-                            <StackPanel>
-                                <muxc:RatingControl Value="{Binding Rating}" IsReadOnly="True" AutomationProperties.Name="评分"/>
-                                <TextBlock Margin="3,0,0,0">
-                                <Run Text="{Binding RatingCount}"/> 人评分
                                 </TextBlock>
+                                <Grid Width="20"/>
+                                <StackPanel>
+                                    <muxc:RatingControl Value="{Binding Rating}" IsReadOnly="True" AutomationProperties.Name="评分"/>
+                                    <TextBlock Margin="3,0,0,0">
+                                <Run Text="{Binding RatingCount}"/> 人评分
+                                    </TextBlock>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                        <Border Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">
-                            <ScrollViewer>
-                                <ItemsControl ItemsSource="{Binding Tags}" Margin="10">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="1*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Key}" Width="80" FontSize="15" Margin="0,5,0,0"/>
-                                                <ItemsControl Grid.Column="1" ItemsSource="{Binding Value}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <controls:WrapPanel Orientation="Horizontal"/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Button Content="{Binding}" Padding="3" Margin="5,3,5,3"/>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Border>
-                        <ItemsControl Grid.Row="3" ItemsSource="{Binding Details}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapGrid MaximumRowsOrColumns="2" Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,0,20,0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
-                                            <ColumnDefinition/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Key}" Margin="0,5,20,5" Width="100"/>
-                                        <TextBlock Text="{Binding Value}" Grid.Column="1" Margin="10,5,0,5"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            <Border Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">
+                                <ScrollViewer>
+                                    <ItemsControl ItemsSource="{Binding Tags}" Margin="10">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="1*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Key}" Width="80" FontSize="15" Margin="0,5,0,0"/>
+                                                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Value}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <controls:WrapPanel Orientation="Horizontal"/>
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Content="{Binding}" Padding="3" Margin="5,3,5,3"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+                            <ItemsControl Grid.Row="3" ItemsSource="{Binding Details}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapGrid MaximumRowsOrColumns="2" Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,20,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Key}" Margin="0,5,20,5" Width="100"/>
+                                            <TextBlock Text="{Binding Value}" Grid.Column="1" Margin="10,5,0,5"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
                     </Grid>
                 </Grid>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,10" Spacing="10">
-                    <Button HorizontalAlignment="Right" Content="保存图集"
-                        Command="{Binding Save}" Visibility="{Binding ShowSaveButton}"/>
-                    <Button Content="开始浏览" Command="{Binding OpenGalleryView}" Background="{ThemeResource SystemColorControlAccentBrush}"/>
-                </StackPanel>
+                <Border  Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="4" Grid.Row="3" Margin="10" Padding="5">
+                    <ListView ItemsSource="{Binding Comments}" SelectionMode="None" 
+          HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.Header>
+                            <Grid Margin="20,10,20,10">
+                                <TextBlock Text="评论区" FontSize="24" FontWeight="SemiBold"/>
+                            </Grid>
+                        </ListView.Header>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4" Margin="5" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                    <StackPanel Margin="20,10" HorizontalAlignment="Stretch" Spacing="5">
+
+                                        <!-- 用户信息和时间 -->
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <TextBlock Text="{Binding Publisher}" 
+                             FontWeight="SemiBold"/>
+                                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="{Binding Voting}" ToolTipService.ToolTip="{Binding VotingDetail}" ToolTipService.Placement="Bottom"/>
+                                                <TextBlock Text="{Binding Time}" 
+                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                             HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- 评论内容 -->
+                                        <RichTextBlock local:HtmlRichTextBlock.Html="{Binding Content}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </Border>
+
             </Grid>
-        </Grid>
+        </ScrollViewer>
         <ScrollViewer Visibility="{Binding GalleryViewVisible}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid Margin="20" MaxWidth="1600" HorizontalAlignment="Center">
                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5"/>

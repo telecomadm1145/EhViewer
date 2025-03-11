@@ -14,7 +14,7 @@
     </Page.DataContext>
     <Grid Name="root">
         <ScrollViewer local:InfiniteLoading.Command="{Binding InfiniteLoad}" VerticalScrollBarVisibility="Visible">
-            <Grid>
+            <Grid VerticalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
@@ -58,9 +58,9 @@
                         </StackPanel>
                     </muxc:Expander>
                 </StackPanel>
-                <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
+                <!--<Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>-->
                 <ListView Name="Items" ItemsSource="{Binding Entries}" Grid.Row="3" Margin="5"
-                               MinHeight="{Binding ElementName=root,Path=ActualHeight}" HorizontalAlignment="Center"
+                               HorizontalAlignment="Center"
                           SelectionMode="None">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>

@@ -172,6 +172,31 @@ namespace EhViewer
             [JsonPropertyName("publisher")]
             [JsonInclude]
             public string Publisher;
+
+            public class Comment
+            {
+                [JsonPropertyName("publisher")]
+                [JsonInclude]
+                public string Publisher { get; set; }
+                [JsonPropertyName("content")]
+                [JsonInclude]
+                public string Content { get; set; }
+                [JsonPropertyName("time")]
+                [JsonInclude]
+                public DateTime Time { get; set; }
+                [JsonPropertyName("voting")]
+                [JsonInclude]
+                public int Voting { get; set; }
+                [JsonPropertyName("voting_detail")]
+                [JsonInclude]
+                public string VotingDetail { get; set; }
+                [JsonPropertyName("id")]
+                [JsonInclude]
+                public int Id { get; set; }
+            }
+            [JsonPropertyName("comments")]
+            [JsonInclude]
+            public List<Comment> comments;
         }
         public async Task<GalleryInfo> GetGalleryInfo(string catalogurl)
         {
@@ -258,6 +283,31 @@ namespace EhViewer
                 }
             }
             gi.Publisher = doc.GetElementbyId("gdn")?.SelectSingleNode(".//a")?.InnerText;
+
+            gi.comments = new();
+            if (doc.GetElementbyId("cdiv") is var v)
+            {
+                foreach (var o in v.ChildNodes)
+                {
+                    if (o.Name == "div")
+                    {
+                        GalleryInfo.Comment c = new();
+                        var n2 = o.ChildNodes.FirstOrDefault(x => x.GetAttributeValue("class", "") == "c2");
+                        var pub_t = WebUtility.HtmlDecode(n2?.ChildNodes.FirstOrDefault(x => x.GetAttributeValue("class", "") == "c3")?.InnerText ?? "");
+                        if (pub_t == "")
+                            break;
+                        c.Publisher = Regex.Match(pub_t, "by: (.+)").Groups[1].Value.Trim();
+                        c.Content =
+                            WebUtility.HtmlDecode((o.ChildNodes.FirstOrDefault(x => x.GetAttributeValue("class", "") == "c6")?.InnerHtml ?? "") + "<br>"
+                            + (o.ChildNodes.FirstOrDefault(x => x.GetAttributeValue("class", "") == "c8")?.InnerHtml ?? ""));
+                        c.Time = DateTime.Parse(Regex.Match(pub_t, "Posted on (.+) by:").Groups[1].Value);
+                        c.Id = int.Parse(Regex.Match(o.ChildNodes.FirstOrDefault(x => x.GetAttributeValue("class", "") == "c6").GetAttributeValue("id", "comment_0"), "comment_(\\d+)").Groups[1].Value);
+                        c.Voting = int.Parse(doc.GetElementbyId($"comment_score_{c.Id}")?.InnerText ?? "0");
+                        c.VotingDetail = WebUtility.HtmlDecode(doc.GetElementbyId($"cvotes_{c.Id}")?.InnerText ?? "");
+                        gi.comments.Add(c);
+                    }
+                }
+            }
             return gi;
         }
         public struct GalleryImage
@@ -320,10 +370,10 @@ namespace EhViewer
                     if (match.Success)
                     {
                         var width = int.Parse(match.Groups[1].Value.Replace("px", ""));
-                        var height = int.Parse(match.Groups[2+1].Value.Replace("px", ""));
-                        var imageUrl = match.Groups[3+2].Value;
-                        var xOffset = int.Parse(match.Groups[4+2].Value.Replace("px", ""));
-                        var yOffset = int.Parse(match.Groups[6+2].Value.Replace("px", ""));
+                        var height = int.Parse(match.Groups[2 + 1].Value.Replace("px", ""));
+                        var imageUrl = match.Groups[3 + 2].Value;
+                        var xOffset = int.Parse(match.Groups[4 + 2].Value.Replace("px", ""));
+                        var yOffset = int.Parse(match.Groups[6 + 2].Value.Replace("px", ""));
 
                         xOffset = xOffset < 0 ? -xOffset : xOffset;
                         yOffset = yOffset < 0 ? -yOffset : yOffset;

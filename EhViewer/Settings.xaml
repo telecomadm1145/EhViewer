@@ -1,0 +1,43 @@
+﻿<Page
+    x:Class="EhViewer.Settings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EhViewer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Margin="20">
+        <StackPanel Spacing="10">
+            <TextBlock Text="联网" FontSize="24"/>
+            <CheckBox x:Name="CheckboxSNI" Content="SNI伪装"/>
+            <TextBlock Text="SNI（填空则随机）"/>
+            <TextBox x:Name="TextBoxSNI" Width="400" HorizontalAlignment="Left"/>
+
+            <CheckBox x:Name="CheckboxDOH" Content="使用DOH"/>
+            <TextBlock Text="DOH端点"/>
+            <TextBox x:Name="TextBoxDOHEndpoint" Width="400" HorizontalAlignment="Left"/>
+
+            <TextBlock Text="Hosts (格式为：ipaddr hostname，允许通配符)"/>
+            <TextBox x:Name="TextBoxHosts" Width="400" HorizontalAlignment="Left"/>
+
+            <CheckBox x:Name="CheckboxProxy" Content="使用代理 (请注意 UWP 沙箱 Loopback 限制)"/>
+            <TextBlock Text="代理地址 (例: socks5://localhost:10808)"/>
+            <TextBox x:Name="TextBoxProxy" Width="400" HorizontalAlignment="Left"/>
+
+            <TextBlock Text="下载图片最大并发数量"/>
+            <TextBox x:Name="TextBoxMaxDownloads" Width="400" HorizontalAlignment="Left"/>
+
+            <TextBlock Text="Cookies"/>
+            <TextBox x:Name="TextBoxCookies" Width="400" HorizontalAlignment="Left"/>
+
+            <CheckBox x:Name="CheckboxAlternateEndpoint" Content="使用里站端点"/>
+
+            <TextBlock Text="显示" FontSize="24"/>
+            <CheckBox x:Name="CheckboxFilterAds" Content="过滤画廊内广告"/>
+            <CheckBox x:Name="CheckboxHideControversial" Content="隐藏有争议的评论"/>
+            <CheckBox x:Name="CheckboxHideComments" Content="不显示评论区"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
