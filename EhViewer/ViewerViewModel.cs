@@ -170,7 +170,7 @@ namespace EhViewer
                 RatingCount = info.RateCount;
                 Tags = info.Tags;
                 Publisher = info.Publisher;
-                Comments.AddRange(info.comments);
+                Comments.AddRange(info.comments ?? new());
                 if (!offline_mode)
                 {
                     try
@@ -193,7 +193,7 @@ namespace EhViewer
                         offline_mode = true;
                         if (gi == null)
                             return;
-                        foreach (var img in gi.Images.Reverse<string>())
+                        foreach (var img in gi.Images)
                         {
                             ViewerImage vi = new()
                             {
@@ -207,7 +207,7 @@ namespace EhViewer
                 {
                     if (gi == null)
                         return;
-                    foreach (var img in gi.Images.Reverse<string>())
+                    foreach (var img in gi.Images)
                     {
                         ViewerImage vi = new()
                         {

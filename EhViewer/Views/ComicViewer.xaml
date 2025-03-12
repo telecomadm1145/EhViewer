@@ -20,11 +20,11 @@
                 </Grid.RowDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" MaxWidth="600"/>
+                        <ColumnDefinition Width="auto" MinWidth="300"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Margin="25" VerticalAlignment="Center" MaxWidth="400">
-                        <Button CornerRadius="10" Command="{Binding OpenGalleryView}">
+                        <Button CornerRadius="10" Command="{Binding OpenGalleryView}" MinWidth="300" d:Height="400">
                             <Button.ContextFlyout>
                                 <MenuFlyout>
                                     <MenuFlyoutItem Text="复制链接" Command="{Binding CopyLink}"/>
@@ -43,11 +43,18 @@
                                 <RowDefinition Height="1*"/>
                                 <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="{Binding Title}" TextWrapping="Wrap" FontSize="30" ToolTipService.ToolTip="{Binding RawTitle}"/>
+                            <RichTextBlock Grid.Row="0" TextWrapping="Wrap" ToolTipService.ToolTip="{Binding RawTitle}" ToolTipService.Placement="Bottom">
+                                <Paragraph>
+                                    <Run FontSize="30" Text="{Binding Title}" d:Text="[C109] 玩原神玩的 [AI Generated]"/>
+                                </Paragraph>
+                            </RichTextBlock>
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <TextBlock FontSize="15" Margin="0,3,0,0">
-                        上传者: <Run Text="{Binding Publisher}" FontWeight="Bold"/>
-                                </TextBlock>
+                                <RichTextBlock FontSize="15" Margin="0,3,0,0">
+                                    <Paragraph>
+                                        上传者:
+                                        <Run Text="{Binding Publisher}" d:Text="Example" FontWeight="Bold"/>
+                                    </Paragraph>
+                                </RichTextBlock>
                                 <Grid Width="20"/>
                                 <StackPanel>
                                     <muxc:RatingControl Value="{Binding Rating}" IsReadOnly="True" AutomationProperties.Name="评分"/>
@@ -71,7 +78,11 @@
                                                         <ColumnDefinition Width="auto"/>
                                                         <ColumnDefinition Width="1*"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{Binding Key}" Width="80" FontSize="15" Margin="0,5,0,0"/>
+                                                    <RichTextBlock Width="80" FontSize="15" Margin="0,5,0,0">
+                                                        <Paragraph>
+                                                            <Run Text="{Binding Key}"/>
+                                                        </Paragraph>
+                                                    </RichTextBlock>
                                                     <ItemsControl Grid.Column="1" ItemsSource="{Binding Value}">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>
@@ -80,7 +91,13 @@
                                                         </ItemsControl.ItemsPanel>
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Button Content="{Binding}" Padding="3" Margin="5,3,5,3"/>
+                                                                <Button Padding="5,3,5,3" Margin="3" Command="{local:CopyToClipboard}" CommandParameter="{Binding}">
+                                                                    <RichTextBlock>
+                                                                        <Paragraph>
+                                                                            <Run Text="{Binding}"/>
+                                                                        </Paragraph>
+                                                                    </RichTextBlock>
+                                                                </Button>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
@@ -104,7 +121,11 @@
                                                 <ColumnDefinition/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Key}" Margin="0,5,20,5" Width="100"/>
-                                            <TextBlock Text="{Binding Value}" Grid.Column="1" Margin="10,5,0,5"/>
+                                            <RichTextBlock Grid.Column="1" Margin="10,5,0,5">
+                                                <Paragraph>
+                                                    <Run Text="{Binding Value}"/>
+                                                </Paragraph>
+                                            </RichTextBlock>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

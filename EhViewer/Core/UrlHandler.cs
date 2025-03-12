@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EhViewer
 {
-    internal class XamlIf
+    internal class UrlHandler
     {
     }
 }

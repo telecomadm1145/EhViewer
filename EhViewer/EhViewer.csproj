@@ -120,39 +120,40 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AppSettings.cs" />
-    <Compile Include="CategoryColorConverter.cs" />
-    <Compile Include="ComicViewer.xaml.cs">
+    <Compile Include="Core\AppSettings.cs" />
+    <Compile Include="XamlHelper\CategoryColorConverter.cs" />
+    <Compile Include="Views\ComicViewer.xaml.cs">
       <DependentUpon>ComicViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EhApi.cs" />
-    <Compile Include="EhTranslationDatabase.cs" />
-    <Compile Include="HtmlConverter.cs" />
-    <Compile Include="ICloseable.cs" />
-    <Compile Include="CachingService.cs" />
-    <Compile Include="InfiniteLoading.cs" />
-    <Compile Include="Limit.cs" />
-    <Compile Include="Locals.xaml.cs">
+    <Compile Include="Core\EhApi.cs" />
+    <Compile Include="Core\EhTranslationDatabase.cs" />
+    <Compile Include="XamlHelper\CopyToClipboard.cs" />
+    <Compile Include="XamlHelper\HtmlConverter.cs" />
+    <Compile Include="XamlHelper\ICloseable.cs" />
+    <Compile Include="Core\CachingService.cs" />
+    <Compile Include="XamlHelper\InfiniteLoading.cs" />
+    <Compile Include="Core\Limit.cs" />
+    <Compile Include="Views\Locals.xaml.cs">
       <DependentUpon>Locals.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainPage.xaml.cs">
+    <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NavigationPage.xaml.cs">
+    <Compile Include="Views\NavigationPage.xaml.cs">
       <DependentUpon>NavigationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="SearchHelper.cs" />
-    <Compile Include="Settings.xaml.cs">
+    <Compile Include="XamlHelper\RelayCommand.cs" />
+    <Compile Include="XamlHelper\SearchHelper.cs" />
+    <Compile Include="Views\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\UrlHandler.cs" />
     <Compile Include="ViewerViewModel.cs" />
-    <Compile Include="XamlIf.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -174,15 +175,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="ComicViewer.xaml">
+    <Page Include="Views\ComicViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Locals.xaml">
+    <Page Include="Views\Locals.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainPage.xaml">
+    <Page Include="Views\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -190,11 +191,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NavigationPage.xaml">
+    <Page Include="Views\NavigationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Settings.xaml">
+    <Page Include="Views\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
