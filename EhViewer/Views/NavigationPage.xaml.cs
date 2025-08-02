@@ -22,12 +22,19 @@ namespace EhViewer
     /// <summary>
     /// 可用于自身或导航至 Frame 内部的空白页。
     /// </summary>
-    public sealed partial class NavigationPage : Page
+    public sealed partial class NavigationPage : Page,ICloseable
     {
         public NavigationPage()
         {
             this.InitializeComponent();
             NavigationGrid.SelectionChanged += NavigationGrid_SelectionChanged;
+        }
+
+        public void Close()
+        {
+            if (MyFrame.Content is ICloseable ic){
+                ic.Close();
+            }
         }
 
         private void NavigationGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -53,5 +53,6 @@ namespace EhViewer
                 _semaphore.Release();
             }
         }
+        public static Limit g_limit = new(5);
     }
 }

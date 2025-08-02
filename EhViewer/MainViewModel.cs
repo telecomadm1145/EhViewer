@@ -507,6 +507,7 @@ namespace EhViewer
                 }
             }
         });
+
         public ICommand ReloadCurrent => new RelayCommand(async (object? arg) =>
         {
             if (arg is Entry entry)
