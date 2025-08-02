@@ -3,34 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Net.Http;
 using System.IO;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Core;
-using Windows.UI.Popups;
-using Windows.UI.Xaml.Input;
-using static EhViewer.MainViewModel;
-using static System.Net.Mime.MediaTypeNames;
-using System.Text.Json;
-using Windows.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.Storage;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using System.Reflection;
 using Windows.System;
 
 namespace EhViewer
@@ -50,32 +37,37 @@ namespace EhViewer
         }
     }
     [AddINotifyPropertyChangedInterface]
+    public class Entry
+    {
+        public string Type { get; set; }
+        public DateTime PublishTime { get; set; }
+        public string Name { get; set; }
+        public string[] Tags { get; set; }
+        public double Rating { get; set; }
+        public string Uploader { get; set; }
+        public int Pages { get; set; }
+        public string Url { get; set; }
+        public BitmapImage Preview { get; set; }
+        public string PreviewUrl { get; set; }
+        public string PreviewUrlv2 { get; set; }
+        public byte[] PreviewData { get; set; }
+        public double Height { get; set; }
+        public double Width => 300;
+    }
+    [AddINotifyPropertyChangedInterface]
     public class MainViewModel
     {
+        public MainViewModel()
+        {
+            LoadAdvancedSettings();
+        }
+
         private EhApi eh = new();
         public bool Loading { get; set; } = false;
         public bool Error { get; set; } = false;
-        [AddINotifyPropertyChangedInterface]
-        public class Entry
-        {
-            public string Type { get; set; }
-            public DateTime PublishTime { get; set; }
-            public string Name { get; set; }
-            public string[] Tags { get; set; }
-            public double Rating { get; set; }
-            public string Uploader { get; set; }
-            public int Pages { get; set; }
-            public string Url { get; set; }
-            public BitmapImage Preview { get; set; }
-            public string PreviewUrl { get; set; }
-            public byte[] PreviewData { get; set; }
-            public double Height { get; set; }
-            public double Width => 300;
-        }
         public ObservableCollection<Entry> Entries { get; set; } = new();
         public string NextUrl { get; set; }
         public EhApi.SearchResult SearchResult { get; set; } = default;
-        public List<string> Suggestion { get; set; } = new() { "114514", "1919810" };
         public ICommand Search => new RelayCommand(async (object? url) =>
         {
             if (url is string s && !Loading)
@@ -84,7 +76,12 @@ namespace EhViewer
                 {
                     Loading = true;
                     Entries.Clear();
-                    var u = $"https://e-hentai.org/?f_cats={Categories}&f_search={Uri.EscapeDataString(s)}";
+                    var query = s;
+                    if (!string.IsNullOrWhiteSpace(QuickTags))
+                    {
+                        query = $"{QuickTags} {s}";
+                    }
+                    var u = $"https://e-hentai.org/?f_cats={Categories}&f_search={Uri.EscapeDataString(query)}&advsearch=1&f_srdd={MinStars}";
                     await Load(u);
                     Error = false;
                 }
@@ -95,6 +92,31 @@ namespace EhViewer
                 finally
                 {
                     Loading = false;
+                }
+            }
+        });
+        public ICommand LoadLocals => new RelayCommand(async (object? _) =>
+        {
+            Entries.Clear();
+            var hc = new HttpClient();
+            await OfflineDb.Instance.Load();
+            foreach (var i in OfflineDb.Instance.Infos)
+            {
+                if (i.Images.Count > 0)
+                {
+                    var entry = i.GalleryInfo;
+                    Entry e = new();
+                    e.Name = entry.Title;
+                    e.Height = 600;
+                    // e.Width = 300;
+                    e.Rating = entry.Rating;
+                    e.Uploader = entry.Publisher;
+                    e.PublishTime = DateTime.Parse(entry.Details["发布时间"]);
+                    e.Tags = entry.Tags.SelectMany(kvp => kvp.Value.Select(v => $"{kvp.Key}{v}")).ToArray();
+                    e.PreviewUrlv2 = i.Images.First();
+                    e.Url = i.Url;
+                    _ = LoadPreview(hc, e);
+                    Entries.Add(e);
                 }
             }
         });
@@ -358,27 +380,67 @@ namespace EhViewer
 
         private static async Task LoadPreview(HttpClient hc, Entry e)
         {
-            BitmapImage bi = new();
-            var dat = await CachingService.Instance.GetFromCache("PreviewImg!!" + e.PreviewUrl);
-            MemoryStream ms;
-            if (dat != null)
+            if (e.PreviewUrlv2 != null)
             {
+                var dat = await CachingService.Instance.GetFromCache("Image!!" + new Uri(e.PreviewUrlv2).AbsolutePath);
+                if (dat == null)
+                    return;
+                BitmapImage bi = new();
+                bi.DecodePixelWidth = 300;
+                MemoryStream ms;
                 ms = new MemoryStream(dat);
                 ms.Seek(0, SeekOrigin.Begin);
+                await bi.SetSourceAsync(ms.AsRandomAccessStream());
+                e.Preview = bi;
+                e.PreviewData = ms.ToArray();
             }
             else
             {
-                ms = new();
-                var stm = await hc.GetStreamAsync(e.PreviewUrl);
-                await stm.CopyToAsync(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-                await CachingService.Instance.SaveToCache("PreviewImg!!" + e.PreviewUrl, ms.GetBuffer());
+
+                BitmapImage bi = new();
+                var dat = await CachingService.Instance.GetFromCache("PreviewImg!!" + e.PreviewUrl);
+                MemoryStream ms;
+                if (dat != null)
+                {
+                    ms = new MemoryStream(dat);
+                    ms.Seek(0, SeekOrigin.Begin);
+                }
+                else
+                {
+                    ms = new();
+                    var stm = await hc.GetStreamAsync(e.PreviewUrl);
+                    await stm.CopyToAsync(ms);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    await CachingService.Instance.SaveToCache("PreviewImg!!" + e.PreviewUrl, ms.GetBuffer());
+                }
+                await bi.SetSourceAsync(ms.AsRandomAccessStream());
+                e.Preview = bi;
+                e.PreviewData = ms.ToArray();
             }
-            await bi.SetSourceAsync(ms.AsRandomAccessStream());
-            e.Preview = bi;
-            e.PreviewData = ms.ToArray();
         }
         public int Categories { get; set; }
+        public int MinStars { get; set; } = 2;
+        public string QuickTags { get; set; } = "";
+
+        private void LoadAdvancedSettings()
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+            if (localSettings.Values.TryGetValue("MinStars", out object minStars))
+            {
+                MinStars = (int)minStars;
+            }
+            if (localSettings.Values.TryGetValue("QuickTags", out object quickTags))
+            {
+                QuickTags = (string)quickTags;
+            }
+        }
+
+        public ICommand SaveAdvancedSettings => new RelayCommand((object? _) =>
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["MinStars"] = MinStars;
+            localSettings.Values["QuickTags"] = QuickTags;
+        });
         public ICommand CheckCategory => new RelayCommand((object? i) =>
         {
             Categories ^= int.Parse((string)i);
@@ -441,7 +503,6 @@ namespace EhViewer
                 }
                 catch (Exception ex)
                 {
-                    // 处理异常，可以根据需要显示错误消息
                     Debug.WriteLine($"Copy image failed: {ex.Message}");
                 }
             }
@@ -479,6 +540,12 @@ namespace EhViewer
                 bd.Path = new("RawTitle");
                 item.SetBinding(TabViewItem.HeaderProperty, bd);
                 rootFrame.NewTab(item);
+            }
+        });
+        public ICommand ToggleOffline => new RelayCommand((object? arg) => {
+            if(arg is bool b)
+            {
+                OfflineDb.Instance.OfflineMode = b;
             }
         });
     }

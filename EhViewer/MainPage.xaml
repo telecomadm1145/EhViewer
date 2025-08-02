@@ -55,8 +55,18 @@
                                 <ToggleButton Content="Asian Porn" IsChecked="True" Width="100" CommandParameter="128" Command="{Binding CheckCategory}"/>
                                 <ToggleButton Content="Misc" IsChecked="True" Width="100" CommandParameter="1" Command="{Binding CheckCategory}"/>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="最低星数:" VerticalAlignment="Center"/>
+                                <Slider x:Name="MinRatingSlider" Minimum="2" Maximum="5" StepFrequency="1" Value="{Binding MinStars, Mode=TwoWay}" Width="200" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding Value, ElementName=MinRatingSlider}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+                            <TextBox Text="{Binding QuickTags, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Tag 速选 (以逗号分隔)"/>
+                            <Button Content="保存高级设置" Command="{Binding SaveAdvancedSettings}"/>
                         </StackPanel>
                     </muxc:Expander>
+
+                    <Button Content="显示本地缓存" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding LoadLocals}"/>
+                    <CheckBox Name="offlinetoggle" Content="离线模式" Command="{Binding ToggleOffline}" CommandParameter="{Binding ElementName=offlinetoggle,Path=IsChecked}"/>
                 </StackPanel>
                 <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5" Margin="5"/>
                 <ListView Name="Items" ItemsSource="{Binding Entries}" Grid.Row="3" Margin="5"
@@ -64,8 +74,7 @@
                           SelectionMode="None">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <controls:WrapPanel Orientation="Horizontal">
-                            </controls:WrapPanel>
+                            <ItemsWrapGrid Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>

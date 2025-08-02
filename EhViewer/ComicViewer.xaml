@@ -116,26 +116,26 @@
         <ScrollViewer Visibility="{Binding GalleryViewVisible}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid Margin="20" MaxWidth="1600" HorizontalAlignment="Center">
                 <Border Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5"/>
-                <ListView Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10" SelectionMode="None">
-                    <ListView.ItemsPanel>
+                <GridView Name="Items" ItemsSource="{Binding GalleryImages}" Margin="10,30,10,10" SelectionMode="None">
+                    <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <controls:WrapPanel Orientation="Horizontal"/>
+                            <ItemsWrapGrid Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
+                    </GridView.ItemsPanel>
+                    <GridView.ItemTemplate>
                         <DataTemplate>
                             <Grid Width="250" ToolTipService.ToolTip="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Button Command="{Binding DataContext.Open,ElementName=Items}" CommandParameter="{Binding PageUrl}" Margin="5" Background="#01000000" Padding="0">
                                     <Grid>
-                                        <Image Source="{Binding Source}">
+                                        <Image Source="{Binding Preview}">
                                         </Image>
                                         <muxc:ProgressBar Height="10" VerticalAlignment="Bottom" IsIndeterminate="{Binding Loading}" Value="{Binding Progress}" Maximum="100" Visibility="{Binding DataContext.IsLoadingVisible,ElementName=Items}"/>
                                     </Grid>
                                 </Button>
                             </Grid>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    </GridView.ItemTemplate>
+                </GridView>
                 <Button ToolTipService.ToolTip="X" HorizontalAlignment="Right" VerticalAlignment="Top" 
                         Command="{Binding CloseGalleryView}">
                     <SymbolIcon Symbol="Clear"/>

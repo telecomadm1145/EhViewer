@@ -287,6 +287,7 @@ namespace EhViewer
             var c = navi.ChildNodes.Count - 2;
             if (c < 1)
                 throw new Exception("寄了");
+            c = int.Parse(navi.ChildNodes[c].InnerText);
             for (int i = 1; i < c; i++)
             {
                 content = await client.GetAsync(catalogurl + "?p=" + i);

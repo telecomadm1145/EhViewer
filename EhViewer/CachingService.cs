@@ -110,13 +110,17 @@ namespace EhViewer
         private List<OfflineGalleryInfo> ogis = new();
         public IReadOnlyList<OfflineGalleryInfo> Infos => ogis;
 
+        private bool loaded = false;
+
         public OfflineDb()
         {
-            _ = Load();
         }
         public static OfflineDb Instance = new();
         public async Task Load()
         {
+            if (loaded)
+                return;
+            loaded = true;
             try
             {
                 await syncLock.WaitAsync();
@@ -135,6 +139,8 @@ namespace EhViewer
                 syncLock.Release();
             }
         }
+
+        public bool OfflineMode { get; set; } = false;
 
         public async Task Sync()
         {
@@ -212,6 +218,6 @@ namespace EhViewer
         public EhApi.GalleryInfo GalleryInfo { get; set; }
 
         [JsonPropertyName("images")]
-        public ConcurrentBag<string> Images { get; set; } = new();
+        public List<string> Images { get; set; } = new();
     }
 }
